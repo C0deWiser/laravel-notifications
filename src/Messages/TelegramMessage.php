@@ -6,10 +6,11 @@ use Codewiser\Notifications\Contracts\MessageContract;
 use Codewiser\Notifications\Telegram\InlineKeyboard;
 use Codewiser\Notifications\Telegram\ParseMode;
 use Codewiser\Notifications\Traits\AsSimpleMessage;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Traits\Tappable;
 
-class TelegramMessage implements MessageContract, Renderable
+class TelegramMessage implements MessageContract, Renderable, Arrayable
 {
     use Tappable, AsSimpleMessage;
 
@@ -216,5 +217,12 @@ class TelegramMessage implements MessageContract, Renderable
         }
 
         return $inline_keyboard ?? '';
+    }
+
+    public function toArray(): array
+    {
+        return $this->parameters() + [
+                'text' => $this->content()
+            ];
     }
 }
