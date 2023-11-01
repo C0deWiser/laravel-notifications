@@ -8,6 +8,16 @@ namespace Codewiser\Notifications\Contracts;
 interface MessageContract
 {
     /**
+     * Apply the callback if the given "value" is (or resolves to) truthy.
+     */
+    public function when($value = null, callable $callback = null, callable $default = null);
+
+    /**
+     * Apply the callback if the given "value" is (or resolves to) falsy.
+     */
+    public function unless($value = null, callable $callback = null, callable $default = null);
+
+    /**
      * Set the subject of the notification.
      *
      * @param string $subject
