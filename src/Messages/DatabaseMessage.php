@@ -2,20 +2,19 @@
 
 namespace Codewiser\Notifications\Messages;
 
-use Codewiser\Notifications\Builders\NotificationBuilder;
 use Codewiser\Notifications\Contracts\MessageContract;
-use Codewiser\Notifications\Traits\AsWebNotification;
 use Codewiser\Notifications\Enumerations\MessageLevel;
+use Codewiser\Notifications\Traits\AsWebNotification;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Tappable;
 
 class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage implements Arrayable, MessageContract
 {
     use Tappable, AsWebNotification;
-
-    public Model $discussable;
 
     /**
      * Notification cannot be marked as read by user.
@@ -54,24 +53,39 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function bindTo(Model $model): static
     {
-        $type = NotificationBuilder::morph($model);
-
-        return $this->arbitraryData("bind.$type", $model->getKey());
+        return $this->arbitraryData("bind.{$model->getMorphClass()}", $model->getKey());
     }
 
-    public function bindedTo(): ?Model
+    /**
+     * Get Models mentioned in the Notification.
+     */
+    public function mentions(): Collection
     {
         $binds = Arr::get($this->data, 'options.data.bind');
+        $morphMap = Relation::morphMap();
+        $mentions = collect();
+
         foreach ($binds as $morph => $key) {
-            $model = NotificationBuilder::unmorph($morph);
+
+            $model = $morphMap[$morph] ?? $morph;
+
             if (class_exists($model) && method_exists($model, 'query')) {
                 $model = $model::query()->find($key);
                 if ($model) {
-                    return $model;
+                    $mentions->add($model);
                 }
             }
         }
-        return null;
+
+        return $mentions;
+    }
+
+    /**
+     * @deprecated use mentions()
+     */
+    public function bindedTo(): ?Model
+    {
+        return $this->mentions()->first();
     }
 
     public function toArray(): array
