@@ -2,9 +2,9 @@
 
 namespace Codewiser\Notifications\Messages;
 
+use Codewiser\Notifications\Builders\NotificationBuilder;
 use Codewiser\Notifications\Contracts\MessageContract;
 use Codewiser\Notifications\Traits\AsWebNotification;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Codewiser\Notifications\Enumerations\MessageLevel;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
@@ -54,18 +54,24 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function bindTo(Model $model): static
     {
-        $type = array_search(get_class($model), Relation::morphMap());
-        $type = $type !== false ? $type : get_class($model);
-        $id = $model->getKey();
+        $type = NotificationBuilder::morph($model);
 
-        $this->arbitraryData(class_basename($type), $id);
-
-        return $this->arbitraryData('bind', "$type/$id");
+        return $this->arbitraryData("bind.$type", $model->getKey());
     }
 
-    public function bindedTo(): ?string
+    public function bindedTo(): ?Model
     {
-        return Arr::get($this->data, 'options.data.bind');
+        $binds = Arr::get($this->data, 'options.data.bind');
+        foreach ($binds as $morph => $key) {
+            $model = NotificationBuilder::unmorph($morph);
+            if (class_exists($model) && method_exists($model, 'query')) {
+                $model = $model::query()->find($key);
+                if ($model) {
+                    return $model;
+                }
+            }
+        }
+        return null;
     }
 
     public function toArray(): array

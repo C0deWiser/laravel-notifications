@@ -94,19 +94,28 @@ class NotificationBuilder extends Builder
             ->whereIn('type', $types);
     }
 
+    public static function morph(\Illuminate\Database\Eloquent\Model $model): string
+    {
+        $type = array_search(get_class($model), Relation::morphMap());
+
+        return $type !== false ? $type : get_class($model);
+    }
+
+    public static function unmorph(string $morph): string
+    {
+        $map = Relation::morphMap();
+        return $map[$morph] ?? $morph;
+    }
+
     /**
      * Scope a query to only include notifications binded to a given model.
      */
     public function whereBindedTo(\Illuminate\Database\Eloquent\Model $model): static|Builder
     {
-        $type = array_search(get_class($model), Relation::morphMap());
-
-        $type = $type !== false ? $type : get_class($model);
-
-        $id = $model->getKey();
+        $type = self::morph($model);
 
         return $this
-            ->where('data->options->data->bind', "$type/$id");
+            ->where("data->options->data->bind->$type", $model->getKey());
     }
 
     /**
