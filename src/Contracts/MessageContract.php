@@ -9,11 +9,15 @@ interface MessageContract
 {
     /**
      * Apply the callback if the given "value" is (or resolves to) truthy.
+     *
+     * @return $this
      */
     public function when($value = null, callable $callback = null, callable $default = null);
 
     /**
      * Apply the callback if the given "value" is (or resolves to) falsy.
+     *
+     * @return $this
      */
     public function unless($value = null, callable $callback = null, callable $default = null);
 
