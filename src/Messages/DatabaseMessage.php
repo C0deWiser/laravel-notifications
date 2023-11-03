@@ -15,6 +15,8 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
 {
     use Tappable, AsWebNotification;
 
+    public Model $discussable;
+
     /**
      * Notification cannot be marked as read by user.
      */
@@ -55,6 +57,8 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
         $type = array_search(get_class($model), Relation::morphMap());
         $type = $type !== false ? $type : get_class($model);
         $id = $model->getKey();
+
+        $this->arbitraryData(class_basename($type), $id);
 
         return $this->arbitraryData('bind', "$type/$id");
     }
