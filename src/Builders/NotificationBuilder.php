@@ -33,8 +33,6 @@ use Illuminate\Support\Carbon;
  * @method Model updateOrCreate(array $attributes, array $values = [])
  *
  * @method Collection|Model[] get($columns = ['*'])
- *
- *
  */
 class NotificationBuilder extends Builder
 {
@@ -108,9 +106,9 @@ class NotificationBuilder extends Builder
     }
 
     /**
-     * Scope a query to only include notifications binded to a given model.
+     * Scope a query to only include notifications mentioned to a given model.
      */
-    public function whereBindedTo(\Illuminate\Database\Eloquent\Model $model): static|Builder
+    public function whereBindedTo(\Illuminate\Database\Eloquent\Model $model): static
     {
         $type = self::morph($model);
 
@@ -119,9 +117,9 @@ class NotificationBuilder extends Builder
     }
 
     /**
-     * Order query by notification priority.
+     * Order a query by notification priority.
      */
-    public function orderByPriority(): static|Builder
+    public function orderByPriority(): static
     {
         return $this
             ->orderBy('data->options->data->priority');
@@ -131,5 +129,15 @@ class NotificationBuilder extends Builder
     {
         return $this
             ->orderBy('read_at');
+    }
+
+    /**
+     * Scope a query with notifiable.
+     */
+    public function whereNotifiable(\Illuminate\Database\Eloquent\Model $model): static
+    {
+        return $this
+            ->where('notifiable_type', self::morph($model))
+            ->where('notifiable_id', $model->getKey());
     }
 }

@@ -4,11 +4,11 @@ namespace Codewiser\Notifications\Traits;
 
 use Codewiser\Notifications\Builders\NotificationBuilder;
 use Codewiser\Notifications\Models\DatabaseNotification;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * For Models that are mentioned in Notifications.
- *
  */
 trait HasMentions
 {
