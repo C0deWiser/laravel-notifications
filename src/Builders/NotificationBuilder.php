@@ -108,12 +108,20 @@ class NotificationBuilder extends Builder
     /**
      * Scope a query to only include notifications mentioned to a given model.
      */
-    public function whereBindedTo(\Illuminate\Database\Eloquent\Model $model): static
+    public function whereMentioned(\Illuminate\Database\Eloquent\Model $model): static
     {
         $type = self::morph($model);
 
         return $this
             ->where("data->options->data->bind->$type", $model->getKey());
+    }
+
+    /**
+     * @deprecated use whereMentioned()
+     */
+    public function whereBindedTo(\Illuminate\Database\Eloquent\Model $model): static
+    {
+        return $this->whereMentioned($model);
     }
 
     /**
