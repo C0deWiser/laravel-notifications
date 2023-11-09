@@ -23,7 +23,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function persistent(bool|string $persistent = true): static
     {
-        return $this->arbitraryData('persistent', !!$persistent);
+        return $this->arbitraryData('persistent', $persistent);
     }
 
     /**
