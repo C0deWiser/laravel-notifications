@@ -110,18 +110,21 @@ class NotificationBuilder extends Builder
     }
 
     /**
-     * Order a query by notification priority.
+     * Urgent first.
      */
     public function orderByPriority(): static
     {
         return $this
-            ->orderBy('data->options->data->priority');
+            ->orderByDesc('data->options->data->priority');
     }
 
+    /**
+     * Unread first.
+     */
     public function orderByRead(): static
     {
         return $this
-            ->orderBy('read_at');
+            ->orderByRaw('read_at IS NULL DESC');
     }
 
     /**
