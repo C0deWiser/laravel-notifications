@@ -18,15 +18,20 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
 
     /**
      * Notification cannot be marked as read by user.
+     *
+     * You may describe a reason why it is persistent.
      */
-    public function persistent(bool $persistent = true): static
+    public function persistent(bool|string $persistent = true): static
     {
-        return $this->arbitraryData('persistent', $persistent);
+        return $this->arbitraryData('persistent', !!$persistent);
     }
 
-    public function isPersistent(): bool
+    /**
+     * Check if notification is persistent and get a description (optional).
+     */
+    public function isPersistent(): bool|string
     {
-        return (bool)Arr::get($this->data, 'options.data.persistent');
+        return Arr::get($this->data, 'options.data.persistent');
     }
 
     /**
