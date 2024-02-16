@@ -31,7 +31,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function isPersistent(): bool|string
     {
-        return Arr::get($this->data, 'options.data.persistent');
+        return Arr::get($this->data, 'options.data.persistent', false);
     }
 
     /**
