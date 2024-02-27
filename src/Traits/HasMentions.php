@@ -56,6 +56,7 @@ trait HasMentions
                 'mentions' => fn(HasMany|NotificationBuilder $builder) => $builder
                     ->whereNotifiable($authenticatable)
                     ->whereUnread()
+                    ->with('notifiable')
             ]);
         }
 
