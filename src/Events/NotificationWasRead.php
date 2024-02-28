@@ -24,6 +24,11 @@ class NotificationWasRead implements ShouldBroadcast
         //
     }
 
+    public function broadcastAs(): string
+    {
+        return 'notification.read';
+    }
+
     public function broadcastWhen(): bool
     {
         return true;

@@ -4,6 +4,7 @@ namespace Codewiser\Notifications\Models;
 
 use Codewiser\Notifications\Casts\AsDatabaseMessage;
 use Codewiser\Notifications\Events\NotificationWasRead;
+use Codewiser\Notifications\Events\NotificationWasUnread;
 use Codewiser\Notifications\Messages\DatabaseMessage;
 use Codewiser\Notifications\Builders\NotificationBuilder;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,6 +48,13 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
         parent::markAsRead();
 
         event(new NotificationWasRead($this));
+    }
+
+    public function markAsUnread(): void
+    {
+        parent::markAsUnread();
+
+        event(new NotificationWasUnread($this));
     }
 
     public function prunable(): NotificationBuilder
