@@ -58,6 +58,11 @@ trait HasMentions
                     ->whereUnread()
                     ->with('notifiable')
             ]);
+            $this->loadCount([
+                'mentions' => fn(HasMany|NotificationBuilder $builder) => $builder
+                    ->whereNotifiable($authenticatable)
+                    ->whereUnread()
+            ]);
         }
 
         return $this;
