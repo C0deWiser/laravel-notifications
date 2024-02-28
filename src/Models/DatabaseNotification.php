@@ -54,4 +54,19 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
         return static::query()
             ->wherePrunable(was_read_before: Carbon::parse($this->prune_timeout));
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'type' => $this->type,
+
+            'title'   => $this->data->toArray()['title'] ?? '',
+            'options'   => $this->data->toArray()['options'] ?? [],
+
+            'read_at'    => $this->read_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+    }
 }
