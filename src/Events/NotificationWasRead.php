@@ -38,10 +38,16 @@ class NotificationWasRead implements ShouldBroadcast
     {
         $notifiable = $this->notification->notifiable;
 
-        $type = str($notifiable::class)->replace('\\', '.');
+        if (method_exists($notifiable, 'receivesBroadcastNotificationsOn')) {
+            $route = $notifiable->receivesBroadcastNotificationsOn();
+        } else {
+            $type = str($notifiable::class)->replace('\\', '.');
+            $route = $type.'.'.$notifiable->getKey();
+        }
+
 
         return [
-            new PrivateChannel($type . '.' . $notifiable->getKey()),
+            new PrivateChannel($route),
         ];
     }
 }
