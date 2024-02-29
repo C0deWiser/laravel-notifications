@@ -24,6 +24,13 @@ class NotificationWasRead implements ShouldBroadcast
         //
     }
 
+    public function tags(): array
+    {
+        return [
+            $this->notification->getMorphClass().':'.$this->notification->getKey()
+        ];
+    }
+
     public function broadcastAs(): string
     {
         return 'notification.read';
