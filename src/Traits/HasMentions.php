@@ -2,6 +2,7 @@
 
 namespace Codewiser\Notifications\Traits;
 
+use Closure;
 use Codewiser\Notifications\Builders\HasManyJson;
 use Codewiser\Notifications\Builders\NotificationBuilder;
 use Codewiser\Notifications\Models\DatabaseNotification;
@@ -48,20 +49,47 @@ trait HasMentions
 
     /**
      * Load user's unread notifications about this model.
+     *
+     * @param  Closure(HasMany|NotificationBuilder):HasMany|NotificationBuilder  $callback
      */
-    public function loadUnreadMentions(null|Authenticatable|Model $authenticatable): static
+    public function loadUnreadMentions(null|Authenticatable|Model $authenticatable, ?Closure $callback = null): static
     {
         if ($authenticatable) {
             $this->load([
-                'mentions' => fn(HasMany|NotificationBuilder $builder) => $builder
-                    ->whereNotifiable($authenticatable)
-                    ->whereUnread()
-                    ->with('notifiable')
+                'mentions' => function (HasMany|NotificationBuilder $builder) use ($authenticatable, $callback) {
+                    if ($callback) {
+                        call_user_func($callback, $builder);
+                    }
+                    return $builder
+                        ->whereNotifiable($authenticatable)
+                        ->whereUnread()
+                        ->with('notifiable');
+                }
             ]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Load user's unread notifications about this model.
+     *
+     * @param  Closure(HasMany|NotificationBuilder):HasMany|NotificationBuilder  $callback
+     */
+    public function loadUnreadMentionsCount(null|Authenticatable|Model $authenticatable, ?Closure $callback = null): static
+    {
+        if ($authenticatable) {
             $this->loadCount([
-                'mentions' => fn(HasMany|NotificationBuilder $builder) => $builder
-                    ->whereNotifiable($authenticatable)
-                    ->whereUnread()
+                'mentions' => function (HasMany|NotificationBuilder $builder) use ($authenticatable, $callback) {
+
+                    if ($callback) {
+                        call_user_func($callback, $builder);
+                    }
+
+                    return $builder
+                        ->whereNotifiable($authenticatable)
+                        ->whereUnread();
+                }
             ]);
         }
 
