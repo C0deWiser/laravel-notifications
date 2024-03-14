@@ -15,9 +15,9 @@ class TelegramMessage implements MessageContract, Renderable, Arrayable
     use Tappable, AsSimpleMessage;
 
     protected array $reply_markup = [];
-    protected ?bool $disable_web_page_preview = null;
     protected ?bool $disable_notification = null;
     protected ?bool $protect_content = null;
+    protected array $link_preview_options = [];
 
     public function __construct(protected ParseMode $parse_mode = ParseMode::markdown)
     {
@@ -49,7 +49,49 @@ class TelegramMessage implements MessageContract, Renderable, Arrayable
      */
     public function withoutPreview(bool $disable_web_page_preview = true): static
     {
-        $this->disable_web_page_preview = $disable_web_page_preview;
+        return $this->linkPreviewOptions(is_disabled: $disable_web_page_preview);
+    }
+
+    /**
+     * Describes the options used for link preview generation.
+     *
+     * @param  bool|null  $is_disabled True, if the link preview is disabled
+     * @param  string|null  $url URL to use for the link preview. If empty, then the first URL found in the message text will be used
+     * @param  bool|null  $prefer_small_media True, if the media in the link preview is supposed to be shrunk
+     * @param  bool|null  $prefer_large_media True, if the media in the link preview is supposed to be enlarged
+     * @param  bool|null  $show_above_text True, if the link preview must be shown above the message text
+     *
+     * @return $this
+     *
+     * @see https://core.telegram.org/bots/api#linkpreviewoptions
+     */
+    public function linkPreviewOptions(
+        bool $is_disabled = null,
+        string $url = null,
+        bool $prefer_small_media = null,
+        bool $prefer_large_media = null,
+        bool $show_above_text = null
+    ): static
+    {
+        if (!is_null($is_disabled)) {
+            $this->link_preview_options['is_disabled'] = $is_disabled;
+        }
+
+        if (!is_null($url)) {
+            $this->link_preview_options['url'] = $url;
+        }
+
+        if (!is_null($prefer_small_media)) {
+            $this->link_preview_options['prefer_small_media'] = $prefer_small_media;
+        }
+
+        if (!is_null($prefer_large_media)) {
+            $this->link_preview_options['prefer_large_media'] = $prefer_large_media;
+        }
+
+        if (!is_null($show_above_text)) {
+            $this->link_preview_options['show_above_text'] = $show_above_text;
+        }
 
         return $this;
     }
@@ -90,8 +132,8 @@ class TelegramMessage implements MessageContract, Renderable, Arrayable
             $parameters['reply_markup'] = json_encode($this->reply_markup, JSON_UNESCAPED_UNICODE);
         }
 
-        if (!is_null($this->disable_web_page_preview)) {
-            $parameters['disable_web_page_preview'] = $this->disable_web_page_preview;
+        if ($this->link_preview_options) {
+            $parameters['link_preview_options'] = json_encode($this->link_preview_options, JSON_UNESCAPED_UNICODE);
         }
 
         if (!is_null($this->disable_notification)) {

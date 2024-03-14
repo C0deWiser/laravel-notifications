@@ -2,7 +2,8 @@
 
 namespace Codewiser\Notifications\Models;
 
-use Codewiser\Notifications\Casts\AsDatabaseMessage;
+use Codewiser\Notifications\Casts\AsWebNotification;
+use Codewiser\Notifications\Casts\WebNotification;
 use Codewiser\Notifications\Events\NotificationWasRead;
 use Codewiser\Notifications\Events\NotificationWasUnread;
 use Codewiser\Notifications\Messages\DatabaseMessage;
@@ -10,13 +11,15 @@ use Codewiser\Notifications\Builders\NotificationBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * @property string $id
  * @property string $type Notification class.
  *
- * @property DatabaseMessage $data
+ * @property WebNotification $data
  * @property null|Carbon $read_at
  * @property null|Carbon $created_at
  * @property null|Carbon $updated_at
@@ -35,7 +38,7 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
     protected string $prune_timeout = '-1 month';
 
     protected $casts = [
-        'data' => AsDatabaseMessage::class
+        'data' => AsWebNotification::class
     ];
 
     public function newEloquentBuilder($query): Builder
@@ -69,8 +72,8 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
             'id' => $this->id,
             'type' => $this->type,
 
-            'title'   => $this->data->toArray()['title'] ?? '',
-            'options'   => $this->data->toArray()['options'] ?? [],
+            'title'   => $this->data->title,
+            'options'   => $this->data->options->toArray(),
 
             'read_at'    => $this->read_at,
             'created_at' => $this->created_at,

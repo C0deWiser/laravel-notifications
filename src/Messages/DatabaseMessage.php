@@ -35,7 +35,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     }
 
     /**
-     * @param MessageLevel $level
+     * @param string|MessageLevel $level
      *
      * @return $this
      */
@@ -43,6 +43,8 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     {
         if (is_string($level)) {
             $this->arbitraryData('level', $level);
+
+            $level = MessageLevel::tryFrom($level) ?? $level;
         }
 
         if ($level instanceof MessageLevel) {
@@ -63,6 +65,8 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
 
     /**
      * Get Models mentioned in the Notification.
+     *
+     * @deprecated Moved to DatabaseNotification
      */
     public function mentions(): Collection
     {

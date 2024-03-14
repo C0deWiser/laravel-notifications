@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
  *          tag: string,
  *          icon: string,
  *          silent: boolean,
+ *          requireInteraction: boolean,
  *          data: array,
  *     }} $data
  */
@@ -205,6 +206,17 @@ trait AsWebNotification
             Arr::set($this->data, 'options.data.' . $key, $value);
         } else {
             Arr::forget($this->data, 'options.data.' . $key);
+        }
+
+        return $this;
+    }
+
+    public function requireInteraction(bool $require_interaction = true): static
+    {
+        if ($require_interaction) {
+            Arr::set($this->data, 'options.requireInteraction', true);
+        } else {
+            Arr::forget($this->data, 'options.requireInteraction');
         }
 
         return $this;

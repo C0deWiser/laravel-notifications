@@ -24,7 +24,8 @@ interface MessageContract
     /**
      * Set the subject of the notification.
      *
-     * @param string $subject
+     * @param  string  $subject
+     *
      * @return $this
      */
     public function subject($subject);
@@ -32,7 +33,8 @@ interface MessageContract
     /**
      * Set the "level" of the notification (success, error, etc.).
      *
-     * @param string $level
+     * @param  string  $level
+     *
      * @return $this
      */
     public function level($level);
@@ -54,7 +56,8 @@ interface MessageContract
     /**
      * Add a line of text to the notification.
      *
-     * @param mixed $line
+     * @param  mixed  $line
+     *
      * @return $this
      */
     public function line($line);
@@ -62,8 +65,9 @@ interface MessageContract
     /**
      * Add a line of text to the notification if the given condition is true.
      *
-     * @param bool $boolean
-     * @param mixed $line
+     * @param  bool  $boolean
+     * @param  mixed  $line
+     *
      * @return $this
      */
     public function lineIf($boolean, $line);
@@ -71,7 +75,8 @@ interface MessageContract
     /**
      * Add lines of text to the notification.
      *
-     * @param iterable $lines
+     * @param  iterable  $lines
+     *
      * @return $this
      */
     public function lines($lines);
@@ -79,8 +84,9 @@ interface MessageContract
     /**
      * Add lines of text to the notification if the given condition is true.
      *
-     * @param bool $boolean
-     * @param iterable $lines
+     * @param  bool  $boolean
+     * @param  iterable  $lines
+     *
      * @return $this
      */
     public function linesIf($boolean, $lines);
@@ -88,7 +94,8 @@ interface MessageContract
     /**
      * Add a line of text to the notification.
      *
-     * @param mixed $line
+     * @param  mixed  $line
+     *
      * @return $this
      */
     public function with($line);
@@ -96,9 +103,19 @@ interface MessageContract
     /**
      * Configure the "call to action" button.
      *
-     * @param string $text
-     * @param string $url
+     * @param  string  $text
+     * @param  string  $url
+     *
      * @return $this
      */
     public function action($text, $url);
+
+    /**
+     * Add a line as a blockquote.
+     *
+     * @param  mixed  $quotation
+     *
+     * @return $this
+     */
+    public function quotation($quotation);
 }

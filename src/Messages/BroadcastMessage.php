@@ -47,7 +47,7 @@ class BroadcastMessage extends \Illuminate\Notifications\Messages\BroadcastMessa
                         flex-shrink: 0;
                         border-radius: 50%;
                         text-align: center;
-                        background: rgb(28, 169, 229) url(' . url('img/zenit-logo.png') . ') no-repeat center;
+                        background: rgb(28, 169, 229);
                         background-size: 30px;
                     }
                     .notification header { 

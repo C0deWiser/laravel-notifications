@@ -2,11 +2,10 @@
 
 namespace Codewiser\Notifications\Casts;
 
-use Codewiser\Notifications\Messages\DatabaseMessage;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 
-class AsDatabaseMessage implements CastsAttributes
+class AsWebNotification implements CastsAttributes
 {
     /**
      * Cast the given value.
@@ -19,7 +18,7 @@ class AsDatabaseMessage implements CastsAttributes
             $value = json_decode($value, true);
         }
 
-        return is_array($value) ? new DatabaseMessage($value) : $value;
+        return is_array($value) ? new WebNotification($value['title'] ?? '', $value['options'] ?? []) : $value;
     }
 
     /**
@@ -29,8 +28,8 @@ class AsDatabaseMessage implements CastsAttributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        if ($value instanceof DatabaseMessage) {
-            $value = $value->data;
+        if ($value instanceof WebNotification) {
+            $value = $value->toArray();
         }
 
         if (is_array($value)) {

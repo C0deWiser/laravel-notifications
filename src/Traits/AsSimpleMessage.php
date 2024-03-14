@@ -9,7 +9,7 @@ use Illuminate\Support\Traits\Conditionable;
 
 trait AsSimpleMessage
 {
-    use Conditionable;
+    use Conditionable, HasQuotation;
 
     /**
      * The "level" of the notification (info, success, error).
