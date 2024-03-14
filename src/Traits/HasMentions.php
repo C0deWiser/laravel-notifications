@@ -19,7 +19,10 @@ trait HasMentions
 {
     public function mentions(): MorphToMany|NotificationBuilder
     {
-        return $this->morphToMany(DatabaseNotification::class, 'mentionable', 'notification_mention');
+        return $this->morphToMany(
+            DatabaseNotification::class, 'mentionable', 'notification_mention',
+            relatedPivotKey: 'notification_id'
+        );
     }
 
     /**
