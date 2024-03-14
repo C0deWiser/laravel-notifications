@@ -4,6 +4,7 @@ namespace Codewiser\Notifications\Casts;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class WebNotification implements Arrayable
@@ -54,5 +55,15 @@ class WebNotification implements Arrayable
         }
 
         return $mentions;
+    }
+
+    /**
+     * Check if notification is persistent and get a description (optional).
+     */
+    public function isPersistent(): bool|string
+    {
+        $data = $this->options->data;
+
+        return $data['persistent'] ?? false;
     }
 }

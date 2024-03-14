@@ -28,6 +28,8 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
 
     /**
      * Check if notification is persistent and get a description (optional).
+     *
+     * @deprecated Moved to WebNotification
      */
     public function isPersistent(): bool|string
     {
