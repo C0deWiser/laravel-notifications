@@ -18,7 +18,12 @@ class NotificationMentions
 
             $notification?->data->mentions()
                 ->filter(fn(Model $model) => $model instanceof Mentioned)
-                ->each(fn(Mentioned $model) => $model->mentions()->attach($notification));
+                ->each(fn(Mentioned $model) => $this->bind($model, $notification));
         }
+    }
+
+    public function bind(Mentioned $model, DatabaseNotification $notification): void
+    {
+        $model->mentions()->attach($notification);
     }
 }
