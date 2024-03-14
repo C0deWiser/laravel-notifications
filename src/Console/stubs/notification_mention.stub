@@ -16,6 +16,12 @@ return new class extends Migration
             $table->uuid('notification_id');
             $table->morphs('mentionable');
 
+            $table->foreign('notification_id')
+                ->references('id')
+                ->on('notifications')
+                ->cascadeOnUpdate()
+                ->cascadeOnUpdate();
+
             $table->unique(['notification_id', 'mentionable_type', 'mentionable_id'], 'notification_mention_notification_id_mentionable_unique');
         });
     }
