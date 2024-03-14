@@ -98,9 +98,6 @@ class NotificationBuilder extends Builder
     public function whereMentioned(\Illuminate\Database\Eloquent\Model $model): static
     {
         return $this
-//            ->whereHas('mentions', fn(Builder $builder) => $builder
-//                ->where('mentionable_type', $model->getMorphClass())
-//                ->where('mentionable_id', $model->getKey()))
             ->where("data->options->data->bind->{$model->getMorphClass()}", $model->getKey());
     }
 

@@ -2,19 +2,15 @@
 
 namespace Codewiser\Notifications\Models;
 
+use Codewiser\Notifications\Builders\NotificationBuilder;
 use Codewiser\Notifications\Casts\AsWebNotification;
 use Codewiser\Notifications\Casts\WebNotification;
 use Codewiser\Notifications\Events\NotificationWasRead;
 use Codewiser\Notifications\Events\NotificationWasUnread;
-use Codewiser\Notifications\Messages\DatabaseMessage;
-use Codewiser\Notifications\Builders\NotificationBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 /**
  * @property string $id
@@ -67,19 +63,14 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
             ->wherePrunable(was_read_before: Carbon::parse($this->prune_timeout));
     }
 
-//    public function mentions(): HasMany
-//    {
-//        return $this->hasMany(Mention::class, 'notification_id');
-//    }
-
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
+            'id'   => $this->id,
             'type' => $this->type,
 
             'title'   => $this->data->title,
-            'options'   => $this->data->options->toArray(),
+            'options' => $this->data->options->toArray(),
 
             'read_at'    => $this->read_at,
             'created_at' => $this->created_at,
