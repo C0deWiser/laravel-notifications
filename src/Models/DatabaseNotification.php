@@ -9,7 +9,6 @@ use Codewiser\Notifications\Events\NotificationWasRead;
 use Codewiser\Notifications\Events\NotificationWasUnread;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Carbon;
 
 /**
@@ -27,13 +26,6 @@ use Illuminate\Support\Carbon;
  */
 class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotification
 {
-    use Prunable;
-
-    /**
-     * Prune read messages after timeout.
-     */
-    protected string $prune_timeout = '-1 month';
-
     protected $casts = [
         'data' => AsWebNotification::class
     ];
@@ -55,12 +47,6 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
         parent::markAsUnread();
 
         event(new NotificationWasUnread($this));
-    }
-
-    public function prunable(): NotificationBuilder
-    {
-        return static::query()
-            ->wherePrunable(was_read_before: Carbon::parse($this->prune_timeout));
     }
 
     public function toArray(): array

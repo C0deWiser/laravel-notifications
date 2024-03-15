@@ -2,6 +2,14 @@
 
 Provides Laravel Notification helpers.
 
+It supports four types of notification messages: 
+`mail`, `telegram`, `broadcast` and `database`. 
+All of it implements one contract, so we could build all these messages at ones. 
+
+`Broadcast` and `database` messages got unified payload format:
+[Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification).
+This format is ready to implement on frontend.
+
 ## Migration
 
 Migrate `notifications.data` column to `json` type.
@@ -14,8 +22,8 @@ php artisan migrate
 
 ## Message Contract
 
-All Messages — Mail, Telegram, Broadcast and Database implements
-`MessageContract`, so we can build messages as one.
+All messages — `mail`, `telegram`, `broadcast` and `database` implements
+`MessageContract`, so we can build messages at ones.
 
 ```php
 use Codewiser\Notifications\Contracts\MessageContract;
@@ -66,15 +74,22 @@ class ReviewArticle extends \Illuminate\Notifications\Notification
     {
         return (new BroadcastMessage)
             ->tap(fn($message) => $this->build($message))
-            // Discard action button
-            ->withoutAction();
+            // Remove action button
+            ->withoutAction()
+            // Keep notification on screen until user closes it
+            ->requireInteraction()
+            // Icon to display on notification
+            ->icon('https://example.com/icon.svg');
+            // etc
     }
     
     public function toDatabase(): DatabaseMessage
     {
         return (new DatabaseMessage)
             ->tap(fn($message) => $this->build($message))
-            // Create notification as read
+            // Use level to order database notifications
+            ->level('danger')
+            // Create notification as already read
             ->silent();
     }
     
@@ -87,23 +102,23 @@ class ReviewArticle extends \Illuminate\Notifications\Notification
 
 ## Broadcast Message
 
-Broadcast Message has payload in
+`Broadcast` message has payload in
 [Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification)
 format.
 
 ## Database Message
 
-Database Message (as a Broadcast) has
+`Database` message (as a `broadcast`) has
 [Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification)
 payload.
 
 ### Persistent notification and Mentions
 
-Database notification may be marked as persistent. 
-User can not mark such notification as read. 
-Notification will be marked as read then user reaches to goal.
+`Database` notification may be marked as persistent. 
+Your application may restrict user tries to mark such notification as read. 
+And mark notification as read then user reaches a goals.
 
-Database notification may be binded to a Model, 
+`Database` notification may be binded to a Model, 
 so you can find notifications where Model was mentioned.
 
 For example, notification invites user to review some article. 
@@ -113,26 +128,37 @@ Then article is reviewed, the notification is not relevant anymore.
 ```php
 use Codewiser\Notifications\Messages\DatabaseMessage;
 use Codewiser\Notifications\Models\DatabaseNotification;
+use Codewiser\Notifications\Builders\NotificationBuilder;
 
 // Notification
-public function toDatabase(): DatabaseMessage
+class ReviewArticleNotification extends \Illuminate\Notifications\Notification
 {
-    return (new DatabaseMessage)
-        ->subject('Review article')
-        ->action('Review', route('article.show', $this->article))
-        ->persistent('You must review the article')
-        ->bindTo($this->article);
+    public function toDatabase(): DatabaseMessage
+    {
+        return (new DatabaseMessage)
+            ->subject('Review article')
+            ->action('Review', route('article.show', $this->article))
+            ->persistent('You must review the article')
+            ->bindTo($this->article);
+    }
 }
 
+// Get unread notifications about an article
+$article->mentions()
+    ->where(fn (NotificationBuilder $builder) => $builder
+        ->whereUnread());
+
 // Later...
-if ($article->wasReviewd()) {
+if ($article->wasReviewed()) {
     $user->notifications()
+        ->whereType(ReviewArticleNotification::class)
         ->whereMentioned($article)
+        ->whereUnread()
         ->markAsRead();
 }
 ```
 
-To enable this feature create a migration for `mentions` table.
+To enable binding create a migration for `mentions` table.
 
 ```shell
 php artisan notifications:mentions
@@ -160,13 +186,3 @@ class Article extends Model implements Mentioned
 You may preview not only
 [Mail](https://laravel.com/docs/10.x/notifications#previewing-mail-notifications),
 but also Telegram and Broadcast Notifications — the same way.
-
-## Enhanced DatabaseNotification Model
-
-DatabaseNotification `data` attribute is
-a [Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification)
-object.
-
-DatabaseNotification is Prunable.
-
-Has improved phpdoc and custom Builder.
