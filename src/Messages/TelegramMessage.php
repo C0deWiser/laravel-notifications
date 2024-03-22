@@ -111,7 +111,7 @@ class TelegramMessage implements MessageContract, Renderable, Arrayable
      */
     public function content(): string
     {
-        return implode("\n", array_merge($this->introLines, $this->outroLines));
+        return implode("\n\n", array_merge($this->introLines, $this->outroLines));
     }
 
     public function parameters(): array
