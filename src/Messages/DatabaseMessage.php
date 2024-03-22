@@ -46,6 +46,10 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
         if (is_string($level)) {
             $this->arbitraryData('level', $level);
 
+            if ($level == 'error') {
+                $level = 'danger';
+            }
+
             $level = MessageLevel::tryFrom($level) ?? $level;
         }
 
