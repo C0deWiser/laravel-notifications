@@ -10,6 +10,8 @@ use Codewiser\Notifications\Events\NotificationWasUnread;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * @property string $id
@@ -29,6 +31,17 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
     protected $casts = [
         'data' => AsWebNotification::class
     ];
+
+    protected static function booted(): void
+    {
+        static::deleted(function (self $notification) {
+            if (Schema::hasTable('notification_mention')) {
+                DB::table('notification_mention')
+                    ->where('notification_id', $notification->id)
+                    ->delete();
+            }
+        });
+    }
 
     public function newEloquentBuilder($query): Builder
     {

@@ -8,6 +8,11 @@
             "Codewiser\\Notifications\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "pm",
@@ -25,5 +30,8 @@
                 "Codewiser\\Notifications\\NotificationsServiceProvider"
             ]
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.1"
     }
 }

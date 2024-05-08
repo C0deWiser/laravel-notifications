@@ -146,6 +146,7 @@ class ReviewArticleNotification extends \Illuminate\Notifications\Notification
 // Get unread notifications about an article
 $article->mentions()
     ->where(fn (NotificationBuilder $builder) => $builder
+        ->whereNotifiable($user)
         ->whereUnread());
 
 // Later...
