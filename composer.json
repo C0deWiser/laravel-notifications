@@ -33,5 +33,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^11.1"
+    },
+    "suggest": {
+        "codewiser/telegram-channel": "Laravel Telegram channel for Notifications"
     }
 }

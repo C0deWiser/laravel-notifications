@@ -159,6 +159,7 @@ class TelegramBuilder implements MessageContract, Renderable, Arrayable
         $this->parameters();
 
         $reply_markup = $this->parameters['reply_markup'] ?? [];
+        $reply_markup = json_decode($reply_markup, true);
         $inline_keyboard = $reply_markup['inline_keyboard'] ?? null;
 
         if ($inline_keyboard) {
