@@ -130,9 +130,9 @@ class NotificationBuilder extends Builder
     /**
      * Scope a query with notifiable.
      */
-    public function whereNotifiable(\Illuminate\Database\Eloquent\Model $model): static
+    public function whereNotifiable(\Illuminate\Database\Eloquent\Model $notifiable): static
     {
         return $this
-            ->whereMorphedTo('notifiable', $model);
+            ->whereMorphedTo('notifiable', $notifiable);
     }
 }

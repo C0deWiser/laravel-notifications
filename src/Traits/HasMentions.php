@@ -77,4 +77,17 @@ trait HasMentions
 
         return $this;
     }
+
+    public function scopeWithMentions(Builder $builder, ?Model $authenticated, ?\Closure $callback = null): void
+    {
+        $builder
+            ->when($authenticated, fn(\Illuminate\Database\Eloquent\Builder $builder) => $builder
+                ->withCount([
+                    'mentions' => fn(NotificationBuilder $builder) => $builder
+                        ->when($callback, fn(NotificationBuilder $builder) => $builder->where($callback))
+                        ->whereNotifiable($authenticated)
+                        ->whereUnread(),
+                ])
+            );
+    }
 }
