@@ -38,8 +38,8 @@ trait HasMentions
                     'mentions' => fn(MorphToMany|NotificationBuilder $builder) => $builder
                         ->when($callback, fn(Builder $builder) => $builder->where($callback))
                         ->whereNotifiable($notifiable)
-                        ->whereUnread()
                         ->with('notifiable')
+                        ->whereUnread()
                 ])
                 ->loadCount([
                     'mentions' => fn(MorphToMany|NotificationBuilder $builder) => $builder
@@ -78,7 +78,14 @@ trait HasMentions
         return $this;
     }
 
-    public function scopeWithMentions(Builder $builder, ?Model $authenticated, ?\Closure $callback = null): void
+    /**
+     * @param  Builder  $builder
+     * @param  Model|null  $authenticated
+     * @param  Closure(NotificationBuilder):NotificationBuilder  $callback
+     *
+     * @return void
+     */
+    public function scopeWithUnreadMentions(Builder $builder, ?Model $authenticated, ?\Closure $callback = null): void
     {
         $builder
             ->when($authenticated, fn(\Illuminate\Database\Eloquent\Builder $builder) => $builder
@@ -86,6 +93,7 @@ trait HasMentions
                     'mentions' => fn(NotificationBuilder $builder) => $builder
                         ->when($callback, fn(NotificationBuilder $builder) => $builder->where($callback))
                         ->whereNotifiable($authenticated)
+                        ->with('notifiable')
                         ->whereUnread(),
                 ])
             );
