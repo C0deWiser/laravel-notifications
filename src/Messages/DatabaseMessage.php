@@ -55,8 +55,22 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
 
         if ($level instanceof MessageLevel) {
             $this->arbitraryData('level', $level->value);
-            $this->arbitraryData('priority', $level->priority());
+            $this->priority($level->priority());
         }
+
+        return $this;
+    }
+
+    /**
+     * Set message priority. The bigger is more important.
+     *
+     * @param  int  $priority
+     *
+     * @return $this
+     */
+    public function priority(int $priority): static
+    {
+        $this->arbitraryData('priority', $priority);
 
         return $this;
     }
