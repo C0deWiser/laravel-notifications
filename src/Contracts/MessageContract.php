@@ -118,4 +118,12 @@ interface MessageContract
      * @return $this
      */
     public function quotation($quotation);
+
+    /**
+     * Call the given Closure with this instance then return the instance.
+     *
+     * @param  callable|null  $callback
+     * @return $this|\Illuminate\Support\HigherOrderTapProxy
+     */
+    public function tap($callback = null);
 }
