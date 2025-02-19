@@ -2,39 +2,12 @@
 
 namespace Codewiser\Notifications\Builders;
 
-use Codewiser\Notifications\Models\DatabaseNotification as Model;
-use Closure;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Carbon;
+use Codewiser\Notifications\Models\DatabaseNotification;
 
 /**
- * @method Model getModel()
- * @method Model make(array $attributes = [])
- * @method Model create(array $attributes = [])
- * @method Model forceCreate(array $attributes)
- *
- * @method Model sole($columns = ['*'])
- *
- * @method Model find($id, $columns = ['*'])
- * @method Model findOr($id, $columns = ['*'], Closure $callback = null)
- * @method Model findOrNew($id, $columns = ['*'])
- * @method Model findOrFail($id, $columns = ['*'])
- * @method Collection|Model[] findMany($ids, $columns = ['*'])
- *
- * @method Model first($columns = ['*'])
- * @method Model firstOr($columns = ['*'], Closure $callback = null)
- * @method Model firstOrNew(array $attributes = [], array $values = [])
- * @method Model firstOrFail($columns = ['*'])
- * @method Model firstOrCreate(array $attributes = [], array $values = [])
- * @method Model firstWhere($column, $operator = null, $value = null, $boolean = 'and')
- *
- * @method Model updateOrCreate(array $attributes, array $values = [])
- *
- * @method Collection|Model[] get($columns = ['*'])
+ * @extends \Illuminate\Database\Eloquent\Builder<DatabaseNotification>
  */
-class NotificationBuilder extends Builder
+class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
 {
     /**
      * Scope a query to only include read notifications.
@@ -49,9 +22,9 @@ class NotificationBuilder extends Builder
      */
     public function markAsRead(): bool
     {
-        return $this
-            ->whereUnread()
-            ->each(fn(Model $notification) => $notification->markAsRead());
+        return $this->whereUnread()->each(
+            fn(DatabaseNotification $notification) => $notification->markAsRead()
+        );
     }
 
     /**
@@ -65,14 +38,13 @@ class NotificationBuilder extends Builder
     /**
      * Scope a query to only include prunable notifications.
      */
-    public function wherePrunable(Carbon $was_read_before): static
+    public function wherePrunable(\DateTimeInterface $was_read_before): static
     {
-        return $this
-            ->where(fn(self $builder) => $builder
-                // Missing notifiable
-                ->whereDoesntHave('notifiable')
-                // Notification was read
-                ->orWhere('read_at', '<', $was_read_before));
+        return $this->where(fn(self $builder) => $builder
+            // Missing notifiable
+            ->whereDoesntHave('notifiable')
+            // Notification was read
+            ->orWhere('read_at', '<', $was_read_before));
     }
 
     /**
@@ -88,25 +60,36 @@ class NotificationBuilder extends Builder
             }
         }
 
-        return $this
-            ->whereIn('type', $types);
+        // If no types given — scope nothing.
+        return $this->whereIn('type', $types ?: [0]);
     }
 
     /**
-     * Scope a query to only include notifications mentioned to a given model.
+     * Scope a query to only include notifications mentioned to a given class or model.
+     *
+     * @param  class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Model  $classOrObject
+     *
+     * @return $this
      */
-    public function whereMentioned(\Illuminate\Database\Eloquent\Model $model): static
+    public function whereMentioned(string|\Illuminate\Database\Eloquent\Model $classOrObject): static
     {
-        return $this
-            ->where("data->options->data->bind->{$model->getMorphClass()}", $model->getKey());
+        if (is_string($classOrObject)) {
+            $alias = array_search($classOrObject, \Illuminate\Database\Eloquent\Relations\Relation::$morphMap, strict: true) ?: $classOrObject;
+        } else {
+            $alias = $classOrObject->getMorphClass();
+        }
+
+        return is_string($classOrObject)
+            ? $this->whereJsonContainsKey("data->options->data->bind->$alias")
+            : $this->where("data->options->data->bind->$alias", $classOrObject->getKey());
     }
 
     /**
      * @deprecated use whereMentioned()
      */
-    public function whereBindedTo(\Illuminate\Database\Eloquent\Model $model): static
+    public function whereBindedTo(string|\Illuminate\Database\Eloquent\Model $classOrObject): static
     {
-        return $this->whereMentioned($model);
+        return $this->whereMentioned($classOrObject);
     }
 
     /**
@@ -114,8 +97,7 @@ class NotificationBuilder extends Builder
      */
     public function orderByPriority(): static
     {
-        return $this
-            ->orderByDesc('data->options->data->priority');
+        return $this->orderByDesc('data->options->data->priority');
     }
 
     /**
@@ -123,8 +105,7 @@ class NotificationBuilder extends Builder
      */
     public function orderByRead(): static
     {
-        return $this
-            ->orderByRaw('read_at IS NULL DESC');
+        return $this->orderByRaw('read_at IS NULL DESC');
     }
 
     /**
@@ -132,7 +113,6 @@ class NotificationBuilder extends Builder
      */
     public function whereNotifiable(\Illuminate\Database\Eloquent\Model $notifiable): static
     {
-        return $this
-            ->whereMorphedTo('notifiable', $notifiable);
+        return $this->whereMorphedTo('notifiable', $notifiable);
     }
 }
