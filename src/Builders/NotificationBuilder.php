@@ -67,21 +67,27 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     /**
      * Scope a query to only include notifications mentioned to a given class or model.
      *
-     * @param  class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Model  $classOrObject
+     * @param  class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Model|array<int,class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Model>  $classOrObject
      *
      * @return $this
      */
-    public function whereMentioned(string|\Illuminate\Database\Eloquent\Model $classOrObject): static
+    public function whereMentioned(mixed $classOrObjects): static
     {
-        if (is_string($classOrObject)) {
-            $alias = array_search($classOrObject, \Illuminate\Database\Eloquent\Relations\Relation::$morphMap, strict: true) ?: $classOrObject;
-        } else {
-            $alias = $classOrObject->getMorphClass();
+        $classOrObjects = is_array($classOrObjects) ? $classOrObjects : func_get_args();
+
+        foreach ($classOrObjects as $classOrObject) {
+            if (is_string($classOrObject)) {
+                $alias = array_search($classOrObject, \Illuminate\Database\Eloquent\Relations\Relation::$morphMap, strict: true) ?: $classOrObject;
+            } else {
+                $alias = $classOrObject->getMorphClass();
+            }
+
+            is_string($classOrObject)
+                ? $this->whereJsonContainsKey("data->options->data->bind->$alias")
+                : $this->where("data->options->data->bind->$alias", $classOrObject->getKey());
         }
 
-        return is_string($classOrObject)
-            ? $this->whereJsonContainsKey("data->options->data->bind->$alias")
-            : $this->where("data->options->data->bind->$alias", $classOrObject->getKey());
+        return $this;
     }
 
     /**
