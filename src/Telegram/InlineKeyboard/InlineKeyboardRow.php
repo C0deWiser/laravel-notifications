@@ -4,6 +4,9 @@ namespace Codewiser\Notifications\Telegram\InlineKeyboard;
 
 use Illuminate\Contracts\Support\Arrayable;
 
+/**
+ * @deprecated
+ */
 class InlineKeyboardRow implements Arrayable
 {
     /**

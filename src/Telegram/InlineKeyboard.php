@@ -6,6 +6,9 @@ use Codewiser\Notifications\Telegram\InlineKeyboard\InlineKeyboardButton;
 use Codewiser\Notifications\Telegram\InlineKeyboard\InlineKeyboardMarkup;
 use Codewiser\Notifications\Telegram\InlineKeyboard\InlineKeyboardRow;
 
+/**
+ * @deprecated
+ */
 class InlineKeyboard
 {
     /**

@@ -6,6 +6,9 @@ use Codewiser\Notifications\Telegram\LinkPreviewOptions;
 use Codewiser\Notifications\Telegram\ReplyParameters;
 use Codewiser\Notifications\Telegram\TelegramBuilder;
 
+/**
+ * @deprecated
+ */
 class TelegramMessage extends TelegramBuilder
 {
     protected array $known = [

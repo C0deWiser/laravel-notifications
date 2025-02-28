@@ -4,6 +4,9 @@ namespace Codewiser\Notifications\Telegram;
 
 use Illuminate\Contracts\Support\Arrayable;
 
+/**
+ * @deprecated
+ */
 class ReplyParameters implements Arrayable
 {
     /**

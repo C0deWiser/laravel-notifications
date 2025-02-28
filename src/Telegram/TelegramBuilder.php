@@ -8,6 +8,9 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Traits\Tappable;
 
+/**
+ * @deprecated
+ */
 class TelegramBuilder implements MessageContract, Renderable, Arrayable
 {
     use Tappable, AsSimpleMessage;

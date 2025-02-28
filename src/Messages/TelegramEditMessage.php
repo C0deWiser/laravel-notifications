@@ -5,6 +5,9 @@ namespace Codewiser\Notifications\Messages;
 use Codewiser\Notifications\Telegram\ParseMode;
 use Codewiser\Notifications\Telegram\TelegramBuilder;
 
+/**
+ * @deprecated
+ */
 class TelegramEditMessage extends TelegramBuilder
 {
     protected array $parameters = [];
