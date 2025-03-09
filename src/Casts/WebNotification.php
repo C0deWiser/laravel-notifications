@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-class WebNotification implements Arrayable
+class WebNotification implements Arrayable, \ArrayAccess
 {
     /**
      * An options object containing any custom settings that you want to apply to the notification.
@@ -65,5 +65,29 @@ class WebNotification implements Arrayable
         $data = $this->options->data;
 
         return $data['persistent'] ?? false;
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        $data = $this->options->data;
+
+        return isset($data[$offset]);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        $data = $this->options->data;
+
+        return $data[$offset] ?? null;
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        //
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        //
     }
 }

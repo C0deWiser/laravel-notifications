@@ -162,9 +162,7 @@ trait AsWebNotification
     public function silentIf(bool|Closure $condition): static
     {
         if ($condition instanceof Closure) {
-            if (call_user_func($condition)) {
-                return $this->silent();
-            }
+            $condition = (boolean) call_user_func($condition);
         }
 
         return $this->silent($condition);
