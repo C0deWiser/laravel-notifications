@@ -9,6 +9,7 @@ use Codewiser\Notifications\Events\NotificationWasRead;
 use Codewiser\Notifications\Events\NotificationWasUnread;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -28,20 +29,11 @@ use Illuminate\Support\Facades\Schema;
  */
 class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotification
 {
+    use Prunable;
+
     protected $casts = [
         'data' => AsWebNotification::class
     ];
-
-    protected static function booted(): void
-    {
-        static::deleted(function (self $notification) {
-            if (Schema::hasTable('notification_mention')) {
-                DB::table('notification_mention')
-                    ->where('notification_id', $notification->id)
-                    ->delete();
-            }
-        });
-    }
 
     public function newEloquentBuilder($query): Builder
     {
@@ -75,5 +67,10 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+
+    public function prunable(): Builder
+    {
+        return static::query()->doesntHave('notifiable');
     }
 }
