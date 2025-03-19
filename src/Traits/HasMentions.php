@@ -5,6 +5,7 @@ namespace Codewiser\Notifications\Traits;
 use Closure;
 use Codewiser\Notifications\Builders\NotificationBuilder;
 use Codewiser\Notifications\Models\DatabaseNotification;
+use Codewiser\Notifications\Models\NotificationMention;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,7 @@ trait HasMentions
     public function mentions(): MorphToMany|NotificationBuilder
     {
         return $this->morphToMany(
-            DatabaseNotification::class, 'mentionable', 'notification_mention',
+            DatabaseNotification::class, 'mentionable', NotificationMention::class,
             relatedPivotKey: 'notification_id'
         );
     }

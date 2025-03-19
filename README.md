@@ -10,12 +10,13 @@ All of it implements one contract, so we could build all these messages as one.
 [Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification).
 This format is ready to implement on frontend.
 
-## Migration
+## Migrations
 
-Migrate `notifications.data` column to `json` type.
+Change `notifications.data` column to `json` type and create 
+`notification_mention` table.
 
 ```shell
-php artisan notifications:json
+php artisan vendor:publish
  
 php artisan migrate
 ```
@@ -122,17 +123,75 @@ Custom `NotificationBuilder` allows to order notifications by priority,
 scope query by notifiable, by notification class or by mentioned objects 
 (see below).
 
-### Persistent database notifications and mentions
+### Mentions
 
-`database` notification may be marked as persistent. 
-Your application may restrict user tries to mark such notification as read. 
-And mark notification as read then user reaches goals.
+Mention is a relation between database notification and some model(s). 
 
-`database` notification may be binded to a Model, 
-so you can find notifications where Model was mentioned.
+Let's say our app has a notification about new post comment.
+
+```php
+use Codewiser\Notifications\Messages\DatabaseMessage;
+
+class PostCommentNotification extends \Illuminate\Notifications\Notification
+{
+    public function __construct(public Comment $comment) {
+        //
+    }
+    
+    public function toDatabase($notifiable): DatabaseMessage
+    {
+        return (new DatabaseMessage)
+            ->subject('New comment')
+            ->bindTo($this->comment)
+            ->bindTo($this->comment->post);
+    }
+}
+```
+
+If we bind post and comment models to a database notification, we may show a 
+counter with unread notifications about this post to a user viewing a post. 
+We may build a menu with unread notification counter, etc.
+
+```php
+// Unread notifications about any post:
+$request->user()->notifications()
+    ->whereMentioned(\App\Models\Post::class)
+    ->whereUnread()
+    ->count();
+
+// Unread notifications about comments to exact post:
+$request->user()->notifications()
+    ->whereMentioned([
+        $post, 
+        \App\Models\Comment::class
+    ])
+    ->whereUnread()
+    ->count();
+```
+
+Method `whereMentioned` arguments may be constrained with a callback:
+
+```php
+$user->notifications()
+    ->whereMentioned([
+        $post, 
+        \App\Models\Comment::class => fn($builder) => $builder
+            ->wherePast('published_at')
+    ]);
+```
+
+In this example we will get only notifications that relates to exact post 
+and to comments, that has `published_at` in the past.
+
+### Persistent database notifications
+
+Database notifications may be marked as persistent. 
+Your application may restrict user tries to mark such notification as read.
+Application will mark notification as read automatically, then user reaches 
+goals.
 
 For example, notification invites user to review some article. 
-The notification kept as unread until user reviews the article.
+The notification stays unread until user reviews the article.
 Then article is reviewed, the notification is not relevant anymore.
 
 ```php
@@ -167,14 +226,6 @@ if ($article->wasReviewed()) {
         ->whereMentioned($article)
         ->markAsRead();
 }
-```
-
-To enable binding create a migration for `mentions` table.
-
-```shell
-php artisan notifications:mentions
- 
-php artisan migrate
 ```
 
 Add `Mentioned` contract and `HasMentions` trait to every model, 

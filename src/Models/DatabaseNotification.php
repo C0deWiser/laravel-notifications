@@ -10,6 +10,8 @@ use Codewiser\Notifications\Events\NotificationWasUnread;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -52,6 +54,11 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
         parent::markAsUnread();
 
         event(new NotificationWasUnread($this));
+    }
+
+    public function mentions(): HasMany
+    {
+        return $this->hasMany(NotificationMention::class, 'notification_id');
     }
 
     public function toArray(): array

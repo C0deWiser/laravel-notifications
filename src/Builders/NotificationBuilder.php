@@ -3,6 +3,8 @@
 namespace Codewiser\Notifications\Builders;
 
 use Codewiser\Notifications\Models\DatabaseNotification;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Builder<DatabaseNotification>
@@ -36,18 +38,6 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     }
 
     /**
-     * Scope a query to only include prunable notifications.
-     */
-    public function wherePrunable(\DateTimeInterface $was_read_before): static
-    {
-        return $this->where(fn(self $builder) => $builder
-            // Missing notifiable
-            ->whereDoesntHave('notifiable')
-            // Notification was read
-            ->orWhere('read_at', '<', $was_read_before));
-    }
-
-    /**
      * Scope a query to only include notifications of given type(s).
      */
     public function whereType(mixed $types): static
@@ -67,24 +57,30 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     /**
      * Scope a query to only include notifications mentioned to a given class or model.
      *
-     * @param  class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Model|array<int,class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Model>  $classOrObject
+     * @param  class-string<Model>|Model|array<array-key,class-string<Model>|Model|\Closure>  $relations
      *
      * @return $this
      */
-    public function whereMentioned(mixed $classOrObjects): static
+    public function whereMentioned(mixed $relations, \Closure $callback = null): static
     {
-        $classOrObjects = is_array($classOrObjects) ? $classOrObjects : func_get_args();
+        $relations = is_array($relations) ? $relations : func_get_args();
 
-        foreach ($classOrObjects as $classOrObject) {
-            if (is_string($classOrObject)) {
-                $alias = array_search($classOrObject, \Illuminate\Database\Eloquent\Relations\Relation::$morphMap, strict: true) ?: $classOrObject;
+        foreach ($relations as $key => $value) {
+
+            if (is_string($key) && is_callable($value)) {
+                $callback = $value;
+                $value = $key;
             } else {
-                $alias = $classOrObject->getMorphClass();
+                $callback = null;
             }
 
-            is_string($classOrObject)
-                ? $this->whereJsonContainsKey("data->options->data->bind->$alias")
-                : $this->where("data->options->data->bind->$alias", $classOrObject->getKey());
+            $this->whereHas('mentions', fn(Builder $builder) => $builder
+                // If value is a model or class-name — it works well
+                ->whereMorphedTo('mentionable', $value)
+                ->when($callback, fn(Builder $builder) => $builder
+                    ->whereHas('mentionable', $callback)
+                )
+            );
         }
 
         return $this;
@@ -93,9 +89,9 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     /**
      * @deprecated use whereMentioned()
      */
-    public function whereBindedTo(string|\Illuminate\Database\Eloquent\Model $classOrObject): static
+    public function whereBindedTo(mixed $relations, \Closure $callback = null): static
     {
-        return $this->whereMentioned($classOrObject);
+        return $this->whereMentioned($relations, $callback);
     }
 
     /**
@@ -117,7 +113,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     /**
      * Scope a query with notifiable.
      */
-    public function whereNotifiable(\Illuminate\Database\Eloquent\Model $notifiable): static
+    public function whereNotifiable(Model $notifiable): static
     {
         return $this->whereMorphedTo('notifiable', $notifiable);
     }
