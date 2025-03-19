@@ -61,7 +61,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
      *
      * @return $this
      */
-    public function whereMentioned(mixed $relations, \Closure $callback = null): static
+    public function whereMentioned(mixed $relations): static
     {
         $relations = is_array($relations) ? $relations : func_get_args();
 
@@ -90,9 +90,9 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     /**
      * @deprecated use whereMentioned()
      */
-    public function whereBindedTo(mixed $relations, \Closure $callback = null): static
+    public function whereBindedTo(mixed $relations): static
     {
-        return $this->whereMentioned($relations, $callback);
+        return $this->whereMentioned($relations);
     }
 
     /**
