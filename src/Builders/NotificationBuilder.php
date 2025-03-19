@@ -75,7 +75,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
             }
 
             $this->whereHas('mentions', fn(Builder $builder) => $builder
-                ->when($callback,
+                ->when(isset($callback),
                     // Constrain with a callback
                     fn(Builder $builder) => $builder->whereHasMorph('mentionable', $value, $callback),
                     // Value is a model or a class-name — both works well
