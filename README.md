@@ -16,7 +16,7 @@ Change `notifications.data` column to `json` type and create
 `notification_mention` table.
 
 ```shell
-php artisan vendor:publish
+php artisan vendor:publish --provider="Codewiser\Notifications\NotificationsServiceProvider"
  
 php artisan migrate
 ```
