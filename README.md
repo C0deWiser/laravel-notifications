@@ -228,15 +228,15 @@ if ($article->wasReviewed()) {
 }
 ```
 
-Add `Mentioned` contract and `HasMentions` trait to every model, 
+Add `Mentionable` contract and `HasMentions` trait to every model, 
 that may be mentioned:
 
 ```php
-use \Codewiser\Notifications\Contracts\Mentioned;
+use \Codewiser\Notifications\Contracts\Mentionable;
 use \Codewiser\Notifications\Traits\HasMentions;
 use \Illuminate\Database\Eloquent\Model;
 
-class Article extends Model implements Mentioned
+class Article extends Model implements Mentionable
 {
     // Provides mentions relation
     use HasMentions;

@@ -2,7 +2,7 @@
 
 namespace Codewiser\Notifications\Listeners;
 
-use Codewiser\Notifications\Contracts\Mentioned;
+use Codewiser\Notifications\Contracts\Mentionable;
 use Codewiser\Notifications\Models\DatabaseNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Events\NotificationSent;
@@ -17,12 +17,12 @@ class NotificationMentions
                 ->find($event->notification->id);
 
             $notification?->data->mentions()
-                ->filter(fn(Model $model) => $model instanceof Mentioned)
-                ->each(fn(Mentioned $model) => $this->bind($model, $notification));
+                ->filter(fn(Model $model) => $model instanceof Mentionable)
+                ->each(fn(Mentionable $model) => $this->bind($model, $notification));
         }
     }
 
-    public function bind(Mentioned $model, DatabaseNotification $notification): void
+    public function bind(Mentionable $model, DatabaseNotification $notification): void
     {
         $model->mentions()->attach($notification);
     }

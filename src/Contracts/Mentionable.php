@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- * @deprecated
+ * @property-read Collection|DatabaseNotification[] $mentions
  */
-interface Mentioned extends Mentionable
+interface Mentionable
 {
-    //
+    /**
+     * Notifications where model was mentioned.
+     */
+    public function mentions(): MorphToMany|NotificationBuilder;
 }
