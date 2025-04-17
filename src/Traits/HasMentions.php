@@ -31,7 +31,7 @@ trait HasMentions
      *
      * @param  null|Closure(Builder):Builder  $callback
      */
-    public function loadUnreadMentions(null|Authenticatable|Model $notifiable, ?Closure $callback = null): static
+    public function loadUnreadMentions(?Model $notifiable, ?Closure $callback = null): static
     {
         if ($notifiable) {
             $this
@@ -60,7 +60,7 @@ trait HasMentions
      *
      * @deprecated
      */
-    public function loadUnreadMentionsCount(null|Authenticatable|Model $notifiable, ?Closure $callback = null): static
+    public function loadUnreadMentionsCount(?Model $notifiable, ?Closure $callback = null): static
     {
         if ($notifiable) {
             $this->loadCount([
@@ -82,16 +82,15 @@ trait HasMentions
     /**
      * @param  null|Closure(Builder):Builder  $callback
      */
-    public function scopeWithUnreadMentions(Builder $builder, ?Model $authenticated, ?\Closure $callback = null): void
+    public function scopeWithUnreadMentions(Builder $builder, ?Model $notifiable, ?\Closure $callback = null): void
     {
-        $builder
-            ->when($authenticated, fn(\Illuminate\Database\Eloquent\Builder $builder) => $builder
-                ->withCount([
-                    'mentions' => fn(NotificationBuilder $builder) => $builder
-                        ->when($callback, fn(Builder $builder) => $builder->where($callback))
-                        ->whereNotifiable($authenticated)
-                        ->whereUnread(),
-                ])
-            );
+        if ($notifiable) {
+            $builder->withCount([
+                'mentions' => fn(NotificationBuilder $builder) => $builder
+                    ->when($callback, fn(Builder $builder) => $builder->where($callback))
+                    ->whereNotifiable($notifiable)
+                    ->whereUnread(),
+            ]);
+        }
     }
 }
