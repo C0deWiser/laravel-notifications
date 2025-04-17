@@ -29,7 +29,7 @@ trait HasMentions
     /**
      * Load user's unread notifications about this model.
      *
-     * @param  Closure(MorphToMany|NotificationBuilder):MorphToMany|NotificationBuilder  $callback
+     * @param  null|Closure(Builder):Builder  $callback
      */
     public function loadUnreadMentions(null|Authenticatable|Model $notifiable, ?Closure $callback = null): static
     {
@@ -56,7 +56,7 @@ trait HasMentions
     /**
      * Load user's unread notifications about this model.
      *
-     * @param  Closure(MorphToMany|NotificationBuilder):MorphToMany|NotificationBuilder  $callback
+     * @param  null|Closure(Builder):Builder  $callback
      *
      * @deprecated
      */
@@ -80,11 +80,7 @@ trait HasMentions
     }
 
     /**
-     * @param  Builder  $builder
-     * @param  Model|null  $authenticated
-     * @param  Closure(NotificationBuilder):NotificationBuilder  $callback
-     *
-     * @return void
+     * @param  null|Closure(Builder):Builder  $callback
      */
     public function scopeWithUnreadMentions(Builder $builder, ?Model $authenticated, ?\Closure $callback = null): void
     {
@@ -92,9 +88,8 @@ trait HasMentions
             ->when($authenticated, fn(\Illuminate\Database\Eloquent\Builder $builder) => $builder
                 ->withCount([
                     'mentions' => fn(NotificationBuilder $builder) => $builder
-                        ->when($callback, fn(NotificationBuilder $builder) => $builder->where($callback))
+                        ->when($callback, fn(Builder $builder) => $builder->where($callback))
                         ->whereNotifiable($authenticated)
-                        ->with('notifiable')
                         ->whereUnread(),
                 ])
             );
