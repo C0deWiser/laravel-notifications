@@ -23,7 +23,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function persistent(bool|string $persistent = true): static
     {
-        return $this->arbitraryData('persistent', $persistent);
+        return $this->setOptionData('persistent', $persistent);
     }
 
     /**
@@ -44,7 +44,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     public function level($level): static
     {
         if (is_string($level)) {
-            $this->arbitraryData('level', $level);
+            $this->setOptionData('level', $level);
 
             if ($level == 'error') {
                 $level = 'danger';
@@ -54,7 +54,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
         }
 
         if ($level instanceof MessageLevel) {
-            $this->arbitraryData('level', $level->value);
+            $this->setOptionData('level', $level->value);
             $this->priority($level->priority());
         }
 
@@ -70,7 +70,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function priority(int $priority): static
     {
-        $this->arbitraryData('priority', $priority);
+        $this->setOptionData('priority', $priority);
 
         return $this;
     }
@@ -80,7 +80,11 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function bindTo(Model $model): static
     {
-        return $this->arbitraryData("bind.{$model->getMorphClass()}", $model->getKey());
+        $bindings = $this->getOptionData("bind.{$model->getMorphClass()}") ?? [];
+
+        $bindings[] = $model->getKey();
+
+        return $this->setOptionData("bind.{$model->getMorphClass()}", $bindings);
     }
 
     /**

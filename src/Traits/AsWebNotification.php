@@ -87,7 +87,7 @@ trait AsWebNotification
         $this->actionText = $text;
         $this->actionUrl = $url;
 
-        return $this->arbitraryData('url', $url);
+        return $this->setOptionData('url', $url);
     }
 
     public function withoutAction(): static
@@ -95,7 +95,7 @@ trait AsWebNotification
         $this->actionText = null;
         $this->actionUrl = null;
 
-        return $this->arbitraryData('url', null);
+        return $this->setOptionData('url', null);
     }
 
     /**
@@ -115,7 +115,7 @@ trait AsWebNotification
 
         $this->level = $level;
 
-        return $this->arbitraryData('level', $level);
+        return $this->setOptionData('level', $level);
     }
 
     /**
@@ -184,7 +184,7 @@ trait AsWebNotification
      * @param mixed $value
      * @return $this
      */
-    protected function arbitraryData(string $key, mixed $value): static
+    protected function setOptionData(string $key, mixed $value): static
     {
         if (!is_null($value)) {
             Arr::set($this->data, 'options.data.' . $key, $value);
@@ -193,6 +193,11 @@ trait AsWebNotification
         }
 
         return $this;
+    }
+
+    protected function getOptionData(string $key): mixed
+    {
+        return Arr::get($this->data, 'options.data.' . $key);
     }
 
     protected function setOption(string $key, mixed $value): static

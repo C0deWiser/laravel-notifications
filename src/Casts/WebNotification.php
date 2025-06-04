@@ -42,13 +42,21 @@ class WebNotification implements Arrayable, \ArrayAccess
         if (is_array($data)) {
             $binds = $data['bind'] ?? [];
 
-            foreach ($binds as $morph => $key) {
+            /**
+             * Bind format was changed to allow binding a few models of the same class.
+             *
+             * Before 2025-06: array<morph, pk>
+             * After 2025-06: array<morph, array<pk>>
+             */
+
+            foreach ($binds as $morph => $keys) {
+
                 $model = Relation::getMorphedModel($morph) ?? $morph;
 
                 if (class_exists($model) && method_exists($model, 'query')) {
-                    $model = $model::query()->find($key);
-                    if ($model) {
-                        $mentions->add($model);
+                    $models = $model::query()->find($keys);
+                    if ($models) {
+                        $mentions = $mentions->merge($models);
                     }
                 }
             }
