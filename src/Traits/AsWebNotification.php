@@ -3,6 +3,7 @@
 namespace Codewiser\Notifications\Traits;
 
 use Closure;
+use Codewiser\Notifications\Enumerations\MessageLevel;
 use Codewiser\Notifications\Traits\AsSimpleMessage;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -40,12 +41,11 @@ trait AsWebNotification
                 ->stripTags()
                 ->trim()
                 ->toString();
-            Arr::set($this->data, 'options.body', $body);
         } else {
-            Arr::forget($this->data, 'options.body');
+            $body = null;
         }
 
-        return $this;
+        return $this->setOption('body', $body);
     }
 
     /**
@@ -59,13 +59,7 @@ trait AsWebNotification
      */
     public function dir(string $dir): static
     {
-        if (in_array($dir, ['ltr', 'rtl'])) {
-            Arr::set($this->data, 'options.dir', $dir);
-        } else {
-            Arr::forget($this->data, 'options.dir');
-        }
-
-        return $this;
+        return $this->setOption('dir', in_array($dir, ['ltr', 'rtl']) ? $dir : null);
     }
 
     /**
@@ -93,9 +87,7 @@ trait AsWebNotification
         $this->actionText = $text;
         $this->actionUrl = $url;
 
-        Arr::set($this->data, 'options.data.url', $this->actionUrl);
-
-        return $this;
+        return $this->arbitraryData('url', $url);
     }
 
     public function withoutAction(): static
@@ -103,9 +95,27 @@ trait AsWebNotification
         $this->actionText = null;
         $this->actionUrl = null;
 
-        Arr::forget($this->data, 'options.data.url');
+        return $this->arbitraryData('url', null);
+    }
 
-        return $this;
+    /**
+     * @param string|MessageLevel $level
+     *
+     * @return $this
+     */
+    public function level($level): static
+    {
+        if ($level instanceof MessageLevel) {
+            $level = $level->value;
+        }
+
+        if ($level == 'error') {
+            $level = 'danger';
+        }
+
+        $this->level = $level;
+
+        return $this->arbitraryData('level', $level);
     }
 
     /**
@@ -116,13 +126,7 @@ trait AsWebNotification
      */
     public function icon(?string $icon): static
     {
-        if ($icon) {
-            Arr::set($this->data, 'options.icon', $icon);
-        } else {
-            Arr::forget($this->data, 'options.icon');
-        }
-
-        return $this;
+        return $this->setOption('icon', $icon);
     }
 
     /**
@@ -133,13 +137,7 @@ trait AsWebNotification
      */
     public function tag(?string $tag): static
     {
-        if ($tag) {
-            Arr::set($this->data, 'options.tag', $tag);
-        } else {
-            Arr::forget($this->data, 'options.tag');
-        }
-
-        return $this;
+        return $this->setOption('tag', $tag);
     }
 
     /**
@@ -150,13 +148,7 @@ trait AsWebNotification
      */
     public function lang(?string $lang): static
     {
-        if ($lang) {
-            Arr::set($this->data, 'options.lang', $lang);
-        } else {
-            Arr::forget($this->data, 'options.lang');
-        }
-
-        return $this;
+        return $this->setOption('lang', $lang);
     }
 
     public function silentIf(bool|Closure $condition): static
@@ -177,18 +169,12 @@ trait AsWebNotification
      */
     public function silent(bool $silent = true): static
     {
-        if ($silent) {
-            Arr::set($this->data, 'options.silent', true);
-        } else {
-            Arr::forget($this->data, 'options.silent');
-        }
-
-        return $this;
+        return $this->setOption('silent', $silent ?: null);
     }
 
     public function isSilent(): bool
     {
-        return (bool)Arr::get($this->data, 'options.silent');
+        return (bool) $this->getOption('silent');
     }
 
     /**
@@ -209,14 +195,24 @@ trait AsWebNotification
         return $this;
     }
 
-    public function requireInteraction(bool $require_interaction = true): static
+    protected function setOption(string $key, mixed $value): static
     {
-        if ($require_interaction) {
-            Arr::set($this->data, 'options.requireInteraction', true);
+        if (!is_null($value)) {
+            Arr::set($this->data, 'options.' . $key, $value);
         } else {
-            Arr::forget($this->data, 'options.requireInteraction');
+            Arr::forget($this->data, 'options.' . $key);
         }
 
         return $this;
+    }
+
+    protected function getOption(string $key): mixed
+    {
+        return Arr::get($this->data, 'options.' . $key);
+    }
+
+    public function requireInteraction(bool $require_interaction = true): static
+    {
+        return $this->setOption('requireInteraction', $require_interaction ?: null);
     }
 }
