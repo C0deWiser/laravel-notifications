@@ -9,10 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-/**
- * Frontend should mark a notification as read too.
- */
-class NotificationWasRead implements ShouldBroadcast
+abstract class DatabaseNotificationEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -31,10 +28,7 @@ class NotificationWasRead implements ShouldBroadcast
         ];
     }
 
-    public function broadcastAs(): string
-    {
-        return 'notification.read';
-    }
+    abstract public function broadcastAs(): string;
 
     public function broadcastWhen(): bool
     {

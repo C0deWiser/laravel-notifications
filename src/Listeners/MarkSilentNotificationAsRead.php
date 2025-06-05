@@ -2,7 +2,7 @@
 
 namespace Codewiser\Notifications\Listeners;
 
-use Codewiser\Notifications\Events\NotificationWasRead;
+use Codewiser\Notifications\Events\DatabaseNotificationWasRead;
 use Codewiser\Notifications\Models\DatabaseNotification;
 use Illuminate\Notifications\Events\NotificationSent;
 
@@ -12,7 +12,7 @@ use Illuminate\Notifications\Events\NotificationSent;
  *
  * This fires broadcast event.
  *
- * @see NotificationWasRead
+ * @see DatabaseNotificationWasRead
  */
 class MarkSilentNotificationAsRead
 {

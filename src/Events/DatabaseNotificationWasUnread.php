@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Frontend should mark a notification as unread too.
  */
-class NotificationWasUnread extends NotificationWasRead
+class DatabaseNotificationWasUnread extends DatabaseNotificationEvent
 {
     public function broadcastAs(): string
     {
