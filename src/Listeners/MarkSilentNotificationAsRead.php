@@ -2,7 +2,6 @@
 
 namespace Codewiser\Notifications\Listeners;
 
-use Codewiser\Notifications\Events\DatabaseNotificationWasRead;
 use Codewiser\Notifications\Models\DatabaseNotification;
 use Illuminate\Notifications\Events\NotificationSent;
 
@@ -10,9 +9,7 @@ use Illuminate\Notifications\Events\NotificationSent;
  * If database notification is silent,
  * we should mark it as read immediately.
  *
- * This fires broadcast event.
- *
- * @see DatabaseNotificationWasRead
+ * It fires broadcast event.
  */
 class MarkSilentNotificationAsRead
 {
