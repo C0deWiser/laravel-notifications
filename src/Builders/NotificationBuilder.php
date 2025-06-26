@@ -61,9 +61,9 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
      *
      * @return $this
      */
-    public function whereMentioned(mixed $relations, $operator = '>=', $boolean = 'and'): static
+    public function whereMentioned(string|array|Model $relations, $operator = '>=', $boolean = 'and'): static
     {
-        $relations = is_array($relations) ? $relations : func_get_args();
+        $relations = is_array($relations) ? $relations : [$relations];
 
         foreach ($relations as $key => $value) {
 
@@ -94,7 +94,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
      *
      * @return $this
      */
-    public function whereNotMentioned(mixed $relations, $boolean = 'and'): static
+    public function whereNotMentioned(string|array|Model $relations, $boolean = 'and'): static
     {
         return $this->whereMentioned($relations, '<', $boolean);
     }
