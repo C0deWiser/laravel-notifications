@@ -61,7 +61,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
      *
      * @return $this
      */
-    public function whereMentioned(mixed $relations): static
+    public function whereMentioned(mixed $relations, $operator = '>=', $boolean = 'and'): static
     {
         $relations = is_array($relations) ? $relations : func_get_args();
 
@@ -74,7 +74,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
                 $callback = null;
             }
 
-            $this->whereHas('mentions', fn(Builder $builder) => $builder
+            $this->has('mentions', $operator, 1, 'and', fn(Builder $builder) => $builder
                 ->when(isset($callback),
                     // Constrain with a callback
                     fn(Builder $builder) => $builder->whereHasMorph('mentionable', $value, $callback),
@@ -85,6 +85,18 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
         }
 
         return $this;
+    }
+
+    /**
+     * Scope a query to include notifications that are not mentioned to a given class or model.
+     *
+     * @param  class-string<Model>|Model|array<array-key,class-string<Model>|Model|\Closure>  $relations
+     *
+     * @return $this
+     */
+    public function whereNotMentioned(mixed $relations, $boolean = 'and'): static
+    {
+        return $this->whereMentioned($relations, '<', $boolean);
     }
 
     /**
