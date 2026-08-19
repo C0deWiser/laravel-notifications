@@ -24,54 +24,41 @@ class BroadcastMessage extends \Illuminate\Notifications\Messages\BroadcastMessa
      */
     public function render(): string
     {
-        $data = $this->data;
+        $options = json_encode($this->data['options'], JSON_UNESCAPED_UNICODE);
 
-        $style = '<style>
-                    .notification {
-                        font-family: sans-serif; 
-                        font-size: 12px;
-                        color: ButtonText;
-                        border: 1px solid ButtonBorder;
-                        width: 320px; 
-                        border-radius: 8px; 
-                        padding: 10px; 
-                        background-color: ButtonFace;
-                        float: right;
-                        display: flex;
-                        box-shadow: 1px 1px 2px 1px ButtonFace;
-                    }
-                    .notification figure {
-                        margin: 0 10px 0 0;
-                        width: 40px;
-                        height: 40px;
-                        flex-shrink: 0;
-                        border-radius: 50%;
-                        text-align: center;
-                        background: rgb(28, 169, 229);
-                        background-size: 30px;
-                    }
-                    .notification header { 
-                        font-weight: bold; 
-                        margin: 0; 
-                    }
-                    .notification article {
-                        margin: 1em 0 0 0;
-                    }
-                  </style>';
-
-        $body = nl2br($data['options']['body'] ?? '');
-
-        if ($body) {
-            $body = '<article>' . $body . '</article>';
+        $js = <<<JS
+(function () {
+    'use strict';
+    
+    document.querySelector("button").addEventListener("click", notifyMe);
+    
+    function notifyMe() {
+        if (!("Notification" in window)) {
+            alert("This browser does not support desktop notification");
+        } else if (Notification.permission === "denied") {
+            alert("User denied desktop notification");
+        } else if (Notification.permission === "granted") {
+            const notification = new Notification("$this->subject", $options );
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    const notification = new Notification("$this->subject", $options );
+                }
+            });
         }
+    }
+})();
+JS;
 
-        return $style .
-            '<div class="notification">
-                <figure></figure>
-                <div>
-                    <header>' . $data['title'] . '</header>
-                    ' . $body . '
-                </div>
-            </div>';
+
+        return '<html lang="'.app()->getLocale().'">
+<head></head>
+<body>
+<div style="width: 100%; height: 90vh; display: flex; justify-content: center; align-items: center;">
+    <button style="font-size: 2rem">Notify me!</button>
+</div>
+<script type="application/javascript">'.$js.'</script>
+</body>
+</html>';
     }
 }
