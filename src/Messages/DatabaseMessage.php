@@ -18,7 +18,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     use Tappable, AsWebNotification;
 
     /**
-     * Notification cannot be marked as read by user.
+     * The notification cannot be marked as read by the user.
      *
      * You may describe a reason why it is persistent.
      */
@@ -28,7 +28,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     }
 
     /**
-     * Check if notification is persistent and get a description (optional).
+     * Check if the notification is persistent and get a description (optional).
      *
      * @deprecated Moved to WebNotification
      */
@@ -63,7 +63,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     }
 
     /**
-     * Set message priority. The bigger is more important.
+     * Set the message priority. The higher the value, the more important the message.
      *
      * @param  int  $priority
      *
@@ -77,9 +77,9 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     }
 
     /**
-     * Bind notification to a model.
+     * Attach a model to the notification.
      */
-    public function bindTo(Model $model): static
+    public function attach(Model $model): static
     {
         $bindings = $this->getOptionData("bind.{$model->getMorphClass()}") ?? [];
 
@@ -89,7 +89,17 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     }
 
     /**
-     * Get Models mentioned in the Notification.
+     * Bind notification to a model.
+     *
+     * @deprecated Use attach() instead.
+     */
+    public function bindTo(Model $model): static
+    {
+        return $this->attach($model);
+    }
+
+    /**
+     * Get models mentioned in the notification.
      *
      * @deprecated Moved to DatabaseNotification
      */
@@ -115,7 +125,7 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     }
 
     /**
-     * @deprecated use mentions()
+     * @deprecated Use mentions() instead.
      */
     public function bindedTo(): ?Model
     {

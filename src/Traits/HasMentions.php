@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- * For Models that are mentioned in Notifications.
+ * For models that are mentioned in notifications.
  *
  * @mixin Model
  */
@@ -27,7 +27,7 @@ trait HasMentions
     }
 
     /**
-     * Load user's unread notifications about this model.
+     * Load the user's unread notifications about this model.
      *
      * @param  null|Closure(Builder):Builder  $callback
      */
@@ -54,7 +54,7 @@ trait HasMentions
     }
 
     /**
-     * Load user's unread notifications about this model.
+     * Load the user's unread notifications about this model.
      *
      * @param  null|Closure(Builder):Builder  $callback
      *

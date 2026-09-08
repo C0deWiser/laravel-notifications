@@ -8,7 +8,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Traits\Tappable;
 
 /**
- * Format Broadcast Message as Web Notification.
+ * Format broadcast messages as Web notifications.
  */
 class BroadcastMessage extends \Illuminate\Notifications\Messages\BroadcastMessage implements Renderable, MessageContract
 {
@@ -20,7 +20,7 @@ class BroadcastMessage extends \Illuminate\Notifications\Messages\BroadcastMessa
     }
 
     /**
-     * Render message preview.
+     * Render the message preview.
      */
     public function render(): string
     {

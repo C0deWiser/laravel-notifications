@@ -2,17 +2,17 @@
 
 Provides Laravel Notification helpers.
 
-It supports few types of notification messages:
-`mail`, `broadcast` and `database`. 
-All of it implements one contract, so we could build all these messages as one. 
+It supports a few types of notification messages:
+`mail`, `broadcast` and `database`.
+All of them implement one contract, so we can build all these messages as one.
 
-`broadcast` and `database` messages got unified payload format:
+`broadcast` and `database` messages share a unified payload format:
 [Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification).
-This format is ready to implement on frontend.
+This format is ready to implement on the frontend.
 
 ## Migrations
 
-Change `notifications.data` column to `json` type and create 
+Change the `notifications.data` column to `json` type and create the 
 `notification_mention` table.
 
 ```shell
@@ -23,14 +23,15 @@ php artisan migrate
 
 ## Message Contract
 
-All messages — `mail`, `broadcast` and `database` implements
-`MessageContract`, so we can build messages as one.
+All messages — `mail`, `broadcast` and `database` — implement
+`MessageContract`, so we can build all messages as one.
 
 ```php
 use Codewiser\Notifications\Contracts\MessageContract;
 use Codewiser\Notifications\Messages\MailMessage;
 use Codewiser\Notifications\Messages\BroadcastMessage;
 use Codewiser\Notifications\Messages\DatabaseMessage;
+use Codewiser\Notifications\MarkdownTable;
 
 class ReviewArticle extends \Illuminate\Notifications\Notification
 {
@@ -38,12 +39,12 @@ class ReviewArticle extends \Illuminate\Notifications\Notification
     {
         $message
             ->subject('Article Review')
-            ->line('You need to review article.')
+            ->line('You need to review the article.')
             ->action('Review', url('/article', [
                 'article' => $this->article->getKey()
             ]))
             // Format as blockquote
-            ->quotation('Silent is gold');
+            ->quotation('Silence is golden');
     }
     
     public function toMail(): MailMessage
@@ -55,6 +56,7 @@ class ReviewArticle extends \Illuminate\Notifications\Notification
                 ->row(['Title 1', 'Title 2'])
                 ->row([':---', '---:'])
                 ->row(['Text 1', 'Text 2'])
+                ->render()
             );
     }
     
@@ -90,19 +92,19 @@ class ReviewArticle extends \Illuminate\Notifications\Notification
 
 ## Broadcast Message
 
-`broadcast` message has payload in
+`broadcast` message has its payload in
 [Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification)
 format.
 
 ## Database Message
 
-`database` message (as a `broadcast`) has
+`database` message (as a `broadcast`) has its
 [Web Notification](https://developer.mozilla.org/en-US/docs/Web/API/Notification)
 payload.
 
 > N.B.  
-> This package provides extended `DatabaseNotification` class.
-> Be sure to override User::notifications() method.
+> This package provides an extended `DatabaseNotification` class.
+> Be sure to override the `User::notifications()` method.
 
 ```php
 use Codewiser\Notifications\Builders\NotificationBuilder;
@@ -119,15 +121,15 @@ class User extends Model
 }
 ```
 
-Custom `NotificationBuilder` allows to order notifications by priority, 
-scope query by notifiable, by notification class or by mentioned objects 
+Custom `NotificationBuilder` allows you to order notifications by priority, 
+scope the query by notifiable, by notification class, or by mentioned objects 
 (see below).
 
 ### Mentions
 
-Mention is a relation between database notification and some model(s). 
+A mention is a relation between a database notification and one or more models. 
 
-Let's say our app has a notification about new post comment.
+Let's say our app has a notification about a new post comment.
 
 ```php
 use Codewiser\Notifications\Messages\DatabaseMessage;
@@ -142,24 +144,24 @@ class PostCommentNotification extends \Illuminate\Notifications\Notification
     {
         return (new DatabaseMessage)
             ->subject('New comment')
-            ->bindTo($this->comment)
-            ->bindTo($this->comment->post);
+            ->attach($this->comment)
+            ->attach($this->comment->post);
     }
 }
 ```
 
-If we bind post and comment models to a database notification, we may show a 
-counter with unread notifications about this post to a user viewing a post. 
-We may build a menu with unread notification counter, etc.
+If we attach post and comment models to a database notification, we may show a 
+counter with unread notifications about this post to a user viewing the post. 
+We may build a menu with an unread notification counter, etc.
 
 ```php
-// Unread notifications about any post:
+// User's unread notifications attached to any post:
 $request->user()->notifications()
     ->whereMentioned(\App\Models\Post::class)
     ->whereUnread()
     ->count();
 
-// Unread notifications about comments to exact post:
+// User's unread notifications attached to the exact post and to any comments:
 $request->user()->notifications()
     ->whereMentioned([
         $post, 
@@ -169,7 +171,7 @@ $request->user()->notifications()
     ->count();
 ```
 
-Method `whereMentioned` arguments may be constrained with a callback:
+The arguments of the `whereMentioned` method may be constrained with a callback:
 
 ```php
 $user->notifications()
@@ -180,26 +182,26 @@ $user->notifications()
     ]);
 ```
 
-In this example we will get only notifications that relates to exact post 
-and to comments, that has `published_at` in the past.
+In this example we will get only notifications that are attached to the exact post 
+and to comments whose `published_at` is in the past.
 
 ### Persistent database notifications
 
 Database notifications may be marked as persistent. 
-Your application may restrict user tries to mark such notification as read.
-Application will mark notification as read automatically, then user reaches 
-goals.
+Your application may prevent the user from marking such a notification as read.
+The application will then mark it as read automatically once the user reaches 
+a goal.
 
-For example, notification invites user to review some article. 
-The notification stays unread until user reviews the article.
-Then article is reviewed, the notification is not relevant anymore.
+For example, a notification invites the user to review some article. 
+The notification stays unread until the user reviews the article.
+Once the article is reviewed, the notification is not relevant anymore.
 
 ```php
 use Codewiser\Notifications\Messages\DatabaseMessage;
 use Codewiser\Notifications\Models\DatabaseNotification;
 use Codewiser\Notifications\Builders\NotificationBuilder;
 
-// Send persistent notification with mentioned article.
+// Send a persistent notification with the article attached.
 class ReviewArticleNotification extends \Illuminate\Notifications\Notification
 {
     public function toDatabase(): DatabaseMessage
@@ -208,7 +210,7 @@ class ReviewArticleNotification extends \Illuminate\Notifications\Notification
             ->subject('Review article')
             ->action('Review', route('article.show', $this->article))
             ->persistent('You must review the article')
-            ->bindTo($this->article);
+            ->attach($this->article);
     }
 }
 
@@ -219,7 +221,7 @@ $article->mentions()
         ->whereUnread()
     );
 
-// Later... mark notification as read if article was reviewed.
+// Later... mark the notification as read if the article was reviewed.
 if ($article->wasReviewed()) {
     $user->notifications()
         ->whereType(ReviewArticleNotification::class)
@@ -228,13 +230,13 @@ if ($article->wasReviewed()) {
 }
 ```
 
-Add `Mentionable` contract and `HasMentions` trait to every model, 
+Add the `Mentionable` contract and `HasMentions` trait to every model 
 that may be mentioned:
 
 ```php
-use \Codewiser\Notifications\Contracts\Mentionable;
-use \Codewiser\Notifications\Traits\HasMentions;
-use \Illuminate\Database\Eloquent\Model;
+use Codewiser\Notifications\Contracts\Mentionable;
+use Codewiser\Notifications\Traits\HasMentions;
+use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model implements Mentionable
 {

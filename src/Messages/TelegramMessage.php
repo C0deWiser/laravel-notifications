@@ -55,7 +55,7 @@ class TelegramMessage extends TelegramBuilder
     }
 
     /**
-     * Link preview generation options for the message
+     * Link preview generation options for the message.
      *
      * @see https://core.telegram.org/bots/api#linkpreviewoptions
      */

@@ -6,10 +6,10 @@ use Codewiser\Notifications\Models\DatabaseNotification;
 use Illuminate\Notifications\Events\NotificationSent;
 
 /**
- * If database notification is silent,
+ * If the database notification is silent,
  * we should mark it as read immediately.
  *
- * It fires broadcast event.
+ * It fires a broadcast event.
  */
 class MarkSilentNotificationAsRead
 {

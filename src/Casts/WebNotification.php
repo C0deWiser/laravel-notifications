@@ -32,7 +32,9 @@ class WebNotification implements Arrayable, \ArrayAccess
     }
 
     /**
-     * Get Models mentioned in the Notification.
+     * Get models mentioned in the notification.
+     *
+     * @internal
      */
     public function mentions(): Collection
     {

@@ -9,7 +9,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**
- * Format data as Web Notification
+ * Format data as a Web notification
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Notification
  *
@@ -50,9 +50,9 @@ trait AsWebNotification
 
     /**
      * The direction in which to display the notification.
-     * It defaults to auto, which just adopts the browser's language setting behavior,
-     * but you can override that behavior by setting values of ltr and rtl
-     * (although most browsers seem to ignore these settings.)
+     * It defaults to auto, which just adopts the browser's language settings behavior.
+     * You can override that behavior by setting the values `ltr` and `rtl`
+     * (although most browsers seem to ignore these settings).
      *
      * @param string $dir
      * @return $this
@@ -141,7 +141,7 @@ trait AsWebNotification
     }
 
     /**
-     * The notification's language, as specified using a string representing a language tag according to RFC 5646.
+     * The notification's language, as specified by a string representing a language tag, according to RFC 5646.
      *
      * @param string|null $lang
      * @return $this
@@ -162,7 +162,7 @@ trait AsWebNotification
 
     /**
      * A boolean value specifying whether the notification is silent (no sounds or vibrations issued),
-     * regardless of the device settings. The default is false, which means it won't be silent.
+     * regardless of the device settings. The default is false, which means the notification is not silent.
      *
      * @param bool $silent
      * @return $this

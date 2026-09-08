@@ -10,7 +10,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Frontend should mark a notification as unread too.
+ * The frontend should mark the notification as unread too.
  */
 class DatabaseNotificationWasUnread extends DatabaseNotificationEvent
 {

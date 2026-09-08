@@ -73,7 +73,7 @@ class TelegramBuilder implements MessageContract, Renderable, Arrayable
 
 
     /**
-     * Render message preview.
+     * Render the message preview.
      *
      * @return string
      */

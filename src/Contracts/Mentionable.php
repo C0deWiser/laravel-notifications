@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 interface Mentionable
 {
     /**
-     * Notifications where model was mentioned.
+     * Notifications where the model was mentioned.
      */
     public function mentions(): MorphToMany|NotificationBuilder;
 }

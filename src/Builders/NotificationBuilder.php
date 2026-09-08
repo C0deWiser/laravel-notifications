@@ -38,7 +38,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     }
 
     /**
-     * Scope a query to only include notifications of given type(s).
+     * Scope a query to only include notifications of the given type(s).
      */
     public function whereType(mixed $types): static
     {
@@ -55,7 +55,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     }
 
     /**
-     * Scope a query to only include notifications mentioned to a given class or model.
+     * Scope a query to only include notifications mentioning a given class or model.
      *
      * @param  class-string<Model>|Model|array<array-key,class-string<Model>|Model|\Closure>  $relations
      *
@@ -74,12 +74,20 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
                 $callback = null;
             }
 
-            $this->has('mentions', $operator, 1, 'and', fn(Builder $builder) => $builder
-                ->when(isset($callback),
-                    // Constrain with a callback
-                    fn(Builder $builder) => $builder->whereHasMorph('mentionable', $value, $callback),
-                    // Value is a model or a class-name — both works well
-                    fn(Builder $builder) => $builder->whereMorphedTo('mentionable', $value)
+            $this->has('mentions', $operator, 1, $boolean, fn(Builder $builder) => $builder
+                ->when(
+                    // A plain model instance with no callback — constrain by both type and id.
+                    $value instanceof Model && is_null($callback),
+                    fn(Builder $builder) => $builder->whereMorphedTo('mentionable', $value),
+                    // A class-string (with or without a callback) — whereHasMorph expects a
+                    // class-string and generates an EXISTS join against the related table, so
+                    // orphaned mention rows (whose mentionable record no longer exists) are
+                    // correctly excluded. A given callback is applied as an extra constraint.
+                    fn(Builder $builder) => $builder->whereHasMorph(
+                        'mentionable',
+                        $value instanceof Model ? get_class($value) : $value,
+                        $callback
+                    )
                 )
             );
         }
@@ -88,7 +96,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     }
 
     /**
-     * Scope a query to include notifications that are not mentioned to a given class or model.
+     * Scope a query to exclude notifications mentioning a given class or model.
      *
      * @param  class-string<Model>|Model|array<array-key,class-string<Model>|Model|\Closure>  $relations
      *
@@ -124,7 +132,7 @@ class NotificationBuilder extends \Illuminate\Database\Eloquent\Builder
     }
 
     /**
-     * Scope a query with notifiable.
+     * Scope a query to include notifications of the given notifiable.
      */
     public function whereNotifiable(Model $notifiable): static
     {
