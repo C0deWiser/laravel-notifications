@@ -174,7 +174,7 @@ $request->user()->notifications()
 The arguments of the `whereMentioned` method may be constrained with a callback:
 
 ```php
-$user->notifications()
+$request->user()->notifications()
     ->whereMentioned([
         $post, 
         \App\Models\Comment::class => fn($builder) => $builder
@@ -184,6 +184,32 @@ $user->notifications()
 
 In this example we will get only notifications that are attached to the exact post 
 and to comments whose `published_at` is in the past.
+
+#### Mentions pivot values
+
+Extend the `notification_mention` table with your own columns, then fill
+them with the second argument of the `attach` method:
+
+```php
+return (new DatabaseMessage)
+    ->subject('New comment')
+    ->attach($this->comment)
+    ->attach($this->comment->post, ['relevant' => true]);
+```
+
+Scope user notifications by those pivot values with a callback in `whereMentioned`.
+
+```php
+// User's unread notifications attached to any post that is flagged as relevant:
+$request->user()->notifications()
+    ->whereMentioned([
+        \App\Models\Post::class => fn($query) => $query
+            ->where('notification_mention.relevant', true),
+    ])
+    ->whereUnread()
+    ->count();
+```
+
 
 ### Persistent database notifications
 

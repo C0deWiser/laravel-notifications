@@ -3,9 +3,6 @@
 namespace Codewiser\Notifications\Casts;
 
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 
 class WebNotification implements Arrayable, \ArrayAccess
 {
@@ -29,42 +26,6 @@ class WebNotification implements Arrayable, \ArrayAccess
             'title'   => $this->title,
             'options' => $this->options->toArray(),
         ]);
-    }
-
-    /**
-     * Get models mentioned in the notification.
-     *
-     * @internal
-     */
-    public function mentions(): Collection
-    {
-        $data = $this->options->data;
-        $mentions = collect();
-
-        if (is_array($data)) {
-            $binds = $data['bind'] ?? [];
-
-            /**
-             * Bind format was changed to allow binding a few models of the same class.
-             *
-             * Before 2025-06: array<morph, pk>
-             * After 2025-06: array<morph, array<pk>>
-             */
-
-            foreach ($binds as $morph => $keys) {
-
-                $model = Relation::getMorphedModel($morph) ?? $morph;
-
-                if (class_exists($model) && method_exists($model, 'query')) {
-                    $models = $model::query()->find($keys);
-                    if ($models) {
-                        $mentions = $mentions->merge($models);
-                    }
-                }
-            }
-        }
-
-        return $mentions;
     }
 
     /**

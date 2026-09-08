@@ -78,14 +78,42 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
 
     /**
      * Attach a model to the notification.
+     *
+     * @param  array<string, mixed>  $attributes  Values for custom pivot columns of the `notification_mention` table.
      */
-    public function attach(Model $model): static
+    public function attach(Model $model, array $attributes = []): static
     {
-        $bindings = $this->getOptionData("bind.{$model->getMorphClass()}") ?? [];
+        $morph = $model->getMorphClass();
+        $key   = $model->getKey();
 
-        $bindings[] = $model->getKey();
+        // 'bind' is a legacy, but we keep it while frontend uses it.
 
-        return $this->setOptionData("bind.{$model->getMorphClass()}", $bindings);
+        foreach (['attached', 'bind'] as $slot) {
+            $bindings = $this->getOptionData("$slot.$morph") ?? [];
+
+            // Keep stored ids unique.
+            if (!in_array($key, $bindings, true)) {
+                $bindings[] = $key;
+                $this->setOptionData("$slot.$morph", $bindings);
+            }
+        }
+
+        // The last attach() call fully defines pivot values for a model.
+        $pivots = $this->getOptionData('pivot_values') ?? [];
+
+        if ($attributes) {
+            $pivots[$morph][$key] = $attributes;
+        } elseif (isset($pivots[$morph][$key])) {
+            unset($pivots[$morph][$key]);
+
+            if ($pivots[$morph] === []) {
+                unset($pivots[$morph]);
+            }
+        }
+
+        $this->setOptionData('pivot_values', $pivots ?: null);
+
+        return $this;
     }
 
     /**
@@ -105,7 +133,13 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
      */
     public function mentions(): Collection
     {
+        // New data is stored in the 'attached' key; the legacy 'bind' key is respected.
         $binds = Arr::get($this->data, 'options.data.bind') ?? [];
+
+        foreach (Arr::get($this->data, 'options.data.attached') ?? [] as $morph => $keys) {
+            // 'bind' values may be a single id (legacy format) or an array of ids.
+            $binds[$morph] = array_merge((array) ($binds[$morph] ?? []), (array) $keys);
+        }
         $morphMap = Relation::morphMap();
         $mentions = collect();
 

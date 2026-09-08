@@ -39,6 +39,7 @@ class NotificationBuilderTest extends TestCase
         $schema->create('notification_mention', function (Blueprint $table) {
             $table->uuid('notification_id');
             $table->morphs('mentionable');
+            $table->boolean('relevant')->default(false);
             $table->timestamps();
 
             $table->foreign('notification_id')
@@ -54,7 +55,7 @@ class NotificationBuilderTest extends TestCase
         });
     }
 
-    private function makeNotification(?Post $post = null): DatabaseNotification
+    private function makeNotification(?Post $post = null, array $pivot = []): DatabaseNotification
     {
         $notification = new DatabaseNotification;
         $notification->id = (string) \Illuminate\Support\Str::uuid();
@@ -69,6 +70,7 @@ class NotificationBuilderTest extends TestCase
             $mention->notification_id = $notification->id;
             $mention->mentionable_type = $post->getMorphClass();
             $mention->mentionable_id = $post->getKey();
+            $mention->forceFill($pivot);
             $mention->save();
         }
 
@@ -113,6 +115,28 @@ class NotificationBuilderTest extends TestCase
         $this->assertEquals('', $array['title']);
         $this->assertEquals([], $array['options']);
         $this->assertEquals($notification->id, $array['id']);
+    }
+
+    public function testWhereMentionedCanBeScopedByPivotValues()
+    {
+        $postA = new Post;
+        $postA->save();
+
+        $postB = new Post;
+        $postB->save();
+
+        $relevant = $this->makeNotification($postA, ['relevant' => true]);
+        $this->makeNotification($postA, ['relevant' => false]);
+        $this->makeNotification($postB);
+
+        $found = DatabaseNotification::query()
+            ->whereMentioned([
+                Post::class => fn(Builder $builder) => $builder->where('notification_mention.relevant', true),
+            ])
+            ->pluck('id')
+            ->all();
+
+        $this->assertEqualsCanonicalizing([$relevant->id], $found);
     }
 
     public function testWhereMentionedByModelMatchesOnlyThatModel()
