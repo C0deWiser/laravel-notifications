@@ -9,7 +9,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Traits\Tappable;
 
 /**
- * @deprecated
+ * @deprecated Use the codewiser/telegram-channel package instead.
  */
 class TelegramBuilder implements MessageContract, Renderable, Arrayable
 {

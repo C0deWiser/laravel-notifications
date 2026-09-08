@@ -22,6 +22,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->unique(['notification_id', 'mentionable_type', 'mentionable_id'], 'notification_mention_notification_id_mentionable_unique');
+            $table->index(['mentionable_type', 'mentionable_id']);
         });
     }
 

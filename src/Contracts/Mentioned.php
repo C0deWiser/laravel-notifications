@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- * @deprecated
+ * @deprecated Use Mentionable instead.
  */
 interface Mentioned extends Mentionable
 {

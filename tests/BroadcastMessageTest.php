@@ -26,4 +26,13 @@ class BroadcastMessageTest extends TestCase
 
         $this->assertEquals('danger', $message->data['options']['data']['level']);
     }
+
+    public function testBodyIsBuiltFromAllLines()
+    {
+        $message = new BroadcastMessage();
+
+        $message->line('first')->line('second');
+
+        $this->assertEquals("first\nsecond", $message->data['options']['body']);
+    }
 }

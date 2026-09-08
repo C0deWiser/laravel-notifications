@@ -6,7 +6,7 @@ use Codewiser\Notifications\Telegram\ParseMode;
 use Codewiser\Notifications\Telegram\TelegramBuilder;
 
 /**
- * @deprecated
+ * @deprecated Use the codewiser/telegram-channel package instead.
  */
 class TelegramEditMessage extends TelegramBuilder
 {

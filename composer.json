@@ -37,5 +37,8 @@
     },
     "suggest": {
         "codewiser/telegram-channel": "Laravel Telegram channel for Notifications"
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }

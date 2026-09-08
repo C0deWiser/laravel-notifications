@@ -7,7 +7,7 @@ use Codewiser\Notifications\Telegram\ReplyParameters;
 use Codewiser\Notifications\Telegram\TelegramBuilder;
 
 /**
- * @deprecated
+ * @deprecated Use the codewiser/telegram-channel package instead.
  */
 class TelegramMessage extends TelegramBuilder
 {

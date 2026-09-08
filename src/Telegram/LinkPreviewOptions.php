@@ -5,7 +5,7 @@ namespace Codewiser\Notifications\Telegram;
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
- * @deprecated
+ * @deprecated Use the codewiser/telegram-channel package instead.
  */
 class LinkPreviewOptions implements Arrayable
 {

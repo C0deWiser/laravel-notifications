@@ -31,21 +31,43 @@ trait AsWebNotification
         with as protected _with;
     }
 
+    /**
+     * Signature of the last synced body (raw intro/outro lines).
+     *
+     * @var string|null
+     */
+    private ?string $bodySignature = null;
+
+    /**
+     * The last computed body to reuse while the lines are unchanged.
+     *
+     * @var string|null
+     */
+    private ?string $syncedBody = null;
+
     public function with($line): static
     {
         $this->_with($line);
 
-        if ($this->introLines || $this->outroLines) {
-            $body = str(implode("\n", array_merge($this->introLines, $this->outroLines)))
-                ->markdown()
-                ->stripTags()
-                ->trim()
-                ->toString();
-        } else {
-            $body = null;
+        return $this->setOption('body', $this->syncBody());
+    }
+
+    /**
+     * Build the markdown body from the intro/outro lines,
+     * reusing the previous result while the lines are unchanged.
+     */
+    private function syncBody(): ?string
+    {
+        $signature = implode("\n", array_merge($this->introLines, $this->outroLines));
+
+        if ($signature !== $this->bodySignature) {
+            $this->bodySignature = $signature;
+            $this->syncedBody = $signature
+                ? str($signature)->markdown()->stripTags()->trim()->toString()
+                : null;
         }
 
-        return $this->setOption('body', $body);
+        return $this->syncedBody;
     }
 
     /**

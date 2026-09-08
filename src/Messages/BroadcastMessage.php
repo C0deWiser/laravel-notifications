@@ -24,7 +24,10 @@ class BroadcastMessage extends \Illuminate\Notifications\Messages\BroadcastMessa
      */
     public function render(): string
     {
-        $options = json_encode($this->data['options'], JSON_UNESCAPED_UNICODE);
+        $options = json_encode($this->data['options'] ?? [], JSON_UNESCAPED_UNICODE);
+
+        // JSON-encode the subject so quotes and HTML in the title cannot break or inject the script.
+        $title = json_encode((string) $this->subject, JSON_UNESCAPED_UNICODE);
 
         $js = <<<JS
 (function () {
@@ -38,11 +41,11 @@ class BroadcastMessage extends \Illuminate\Notifications\Messages\BroadcastMessa
         } else if (Notification.permission === "denied") {
             alert("User denied desktop notification");
         } else if (Notification.permission === "granted") {
-            const notification = new Notification("$this->subject", $options );
+            const notification = new Notification($title, $options );
         } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then((permission) => {
                 if (permission === "granted") {
-                    const notification = new Notification("$this->subject", $options );
+                    const notification = new Notification($title, $options );
                 }
             });
         }

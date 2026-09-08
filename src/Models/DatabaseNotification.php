@@ -67,8 +67,8 @@ class DatabaseNotification extends \Illuminate\Notifications\DatabaseNotificatio
             'id'   => $this->id,
             'type' => $this->type,
 
-            'title'   => $this->data->title,
-            'options' => $this->data->options->toArray(),
+            'title'   => $this->data?->title ?? '',
+            'options' => $this->data?->options?->toArray() ?? [],
 
             'read_at'    => $this->read_at,
             'created_at' => $this->created_at,

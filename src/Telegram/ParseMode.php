@@ -3,7 +3,7 @@
 namespace Codewiser\Notifications\Telegram;
 
 /**
- * @deprecated
+ * @deprecated Use the codewiser/telegram-channel package instead.
  */
 enum ParseMode: string
 {

@@ -101,22 +101,23 @@ class DatabaseMessage extends \Illuminate\Notifications\Messages\DatabaseMessage
     /**
      * Get models mentioned in the notification.
      *
-     * @deprecated Moved to DatabaseNotification
+     * @deprecated Moved to WebNotification
      */
     public function mentions(): Collection
     {
-        $binds = Arr::get($this->data, 'options.data.bind');
+        $binds = Arr::get($this->data, 'options.data.bind') ?? [];
         $morphMap = Relation::morphMap();
         $mentions = collect();
 
-        foreach ($binds as $morph => $key) {
+        foreach ($binds as $morph => $keys) {
 
             $model = $morphMap[$morph] ?? $morph;
 
             if (class_exists($model) && method_exists($model, 'query')) {
-                $model = $model::query()->find($key);
-                if ($model) {
-                    $mentions->add($model);
+                // Keys may be a single id (old format) or an array of ids.
+                $models = $model::query()->find($keys);
+                if ($models) {
+                    $mentions = $mentions->merge(is_iterable($models) ? $models : [$models]);
                 }
             }
         }

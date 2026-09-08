@@ -7,7 +7,7 @@ use Codewiser\Notifications\Telegram\InlineKeyboard\InlineKeyboardMarkup;
 use Codewiser\Notifications\Telegram\InlineKeyboard\InlineKeyboardRow;
 
 /**
- * @deprecated
+ * @deprecated Use the codewiser/telegram-channel package instead.
  */
 class InlineKeyboard
 {

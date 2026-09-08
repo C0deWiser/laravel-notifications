@@ -5,7 +5,7 @@ namespace Codewiser\Notifications\Telegram\InlineKeyboard;
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
- * @deprecated
+ * @deprecated Use the codewiser/telegram-channel package instead.
  */
 class InlineKeyboardButton implements Arrayable
 {

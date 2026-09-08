@@ -98,6 +98,23 @@ class NotificationBuilderTest extends TestCase
         $this->assertNotContains($withOrphan->id, $found);
     }
 
+    public function testToArrayHandlesMissingData()
+    {
+        $notification = new DatabaseNotification;
+        $notification->id = (string) \Illuminate\Support\Str::uuid();
+        $notification->type = 'TestNotification';
+        $notification->notifiable_type = 'App\\Models\\User';
+        $notification->notifiable_id = 1;
+        $notification->data = '';
+        $notification->save();
+
+        $array = $notification->toArray();
+
+        $this->assertEquals('', $array['title']);
+        $this->assertEquals([], $array['options']);
+        $this->assertEquals($notification->id, $array['id']);
+    }
+
     public function testWhereMentionedByModelMatchesOnlyThatModel()
     {
         $postA = new Post;

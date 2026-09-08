@@ -20,7 +20,7 @@ class MarkSilentNotificationAsRead
             $notification = DatabaseNotification::query()
                 ->find($event->notification->id);
 
-            if ($notification?->data->options->silent) {
+            if ($notification?->data?->options?->silent) {
                 $notification->markAsRead();
             }
         }

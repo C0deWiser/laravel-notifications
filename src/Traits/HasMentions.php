@@ -27,7 +27,8 @@ trait HasMentions
     }
 
     /**
-     * Load the user's unread notifications about this model.
+     * Load the user's unread notifications about this model
+     * and set the `mentions_count` attribute.
      *
      * @param  null|Closure(Builder):Builder  $callback
      */
